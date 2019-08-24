@@ -213,15 +213,16 @@ namespace sfw {
 		SimpleLock lock(rpcMutex);
 		for (std::map<std::string, Client*>::iterator it = clientMapping->begin(); it != clientMapping->end(); it++) {
 			Client* cl = it->second;
-			pScriptSystem->BeginCall("printf");
-			pScriptSystem->PushFuncParam(" %s (%s), socket: %d, exp/recv: %d/%d, close: %d");
-			pScriptSystem->PushFuncParam(cl->name);
-			pScriptSystem->PushFuncParam(cl->id);
-			pScriptSystem->PushFuncParam((int)cl->sock);
-			pScriptSystem->PushFuncParam((int)cl->expect);
-			pScriptSystem->PushFuncParam((int)cl->received);
-			pScriptSystem->PushFuncParam((int)cl->closeFlag);
-			pScriptSystem->EndCall();
+			if (pScriptSystem->BeginCall("printf")) {
+				pScriptSystem->PushFuncParam(" %s (%s), socket: %d, exp/recv: %d/%d, close: %d");
+				pScriptSystem->PushFuncParam(cl->name);
+				pScriptSystem->PushFuncParam(cl->id);
+				pScriptSystem->PushFuncParam((int)cl->sock);
+				pScriptSystem->PushFuncParam((int)cl->expect);
+				pScriptSystem->PushFuncParam((int)cl->received);
+				pScriptSystem->PushFuncParam((int)cl->closeFlag);
+				pScriptSystem->EndCall();
+			}
 		}
 	}
 	int SendMessageToClient(const char *clientId, const char *method, std::vector<const char*>& args) {

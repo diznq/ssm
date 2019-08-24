@@ -30,11 +30,12 @@ namespace sfw {
 					}
 				}
 			}
-			pScriptSystem->BeginCall("print");
-			char buff[50];
-			sprintf(buff, "$0    sv_explosive_removal_time = $6%f", *EXPLOSIVE_REMOVAL_TIME);
-			pScriptSystem->PushFuncParam(buff);
-			pScriptSystem->EndCall();
+			if (pScriptSystem->BeginCall("print")) {
+				char buff[50];
+				sprintf(buff, "$0    sv_explosive_removal_time = $6%f", *EXPLOSIVE_REMOVAL_TIME);
+				pScriptSystem->PushFuncParam(buff);
+				pScriptSystem->EndCall();
+			}
 		}
 	}
 
@@ -67,23 +68,26 @@ namespace sfw {
 				to++;
 			strcpy(SvMaster, to);
 		}
-		pScriptSystem->BeginCall("print");
-		char buff[50];
-		sprintf(buff, "$0    sv_master = $6%s", SvMaster);
-		pScriptSystem->PushFuncParam(buff);
-		pScriptSystem->EndCall();
+		if (pScriptSystem->BeginCall("print")) {
+			char buff[50];
+			sprintf(buff, "$0    sv_master = $6%s", SvMaster);
+			pScriptSystem->PushFuncParam(buff);
+			pScriptSystem->EndCall();
+		}
 	}
 	void CmdRPCInfo(IConsoleCmdArgs *pArgs) {
-		pScriptSystem->BeginCall("printf");
 		extern unsigned long rpc_mem_usage, rpc_active_instances;
-		pScriptSystem->PushFuncParam("RPC memory usage: %d bytes");
-		pScriptSystem->PushFuncParam((int)rpc_mem_usage);
-		pScriptSystem->EndCall();
+		if (pScriptSystem->BeginCall("printf")) {
+			pScriptSystem->PushFuncParam("RPC memory usage: %d bytes");
+			pScriptSystem->PushFuncParam((int)rpc_mem_usage);
+			pScriptSystem->EndCall();
+		}
 
-		pScriptSystem->BeginCall("printf");
-		pScriptSystem->PushFuncParam("RPC active instances: %d");
-		pScriptSystem->PushFuncParam((int)rpc_active_instances);
-		pScriptSystem->EndCall();
+		if (pScriptSystem->BeginCall("printf")) {
+			pScriptSystem->PushFuncParam("RPC active instances: %d");
+			pScriptSystem->PushFuncParam((int)rpc_active_instances);
+			pScriptSystem->EndCall();
+		}
 
 		IterateClients();
 	}

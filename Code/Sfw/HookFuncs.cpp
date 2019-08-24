@@ -11,6 +11,27 @@ namespace sfw {
 
 	extern char msg[46];
 
+	bool GRCall(IScriptSystem *pSS, const char *method) {
+		if (!pGameFramework) return false;
+		auto pGRS = pGameFramework->GetIGameRulesSystem();
+		if (!pGRS) return false;
+		auto gameRules = pGRS->GetCurrentGameRules();
+		SmartScriptTable pScript;
+		bool foundScript = false;
+		if (gameRules) {
+			auto entity = gameRules->GetEntity();
+			if (entity) {
+				foundScript = true;
+				pScript = entity->GetScriptTable();
+			}
+		}
+		if (foundScript && pSS->BeginCall(pScript, method)) {
+			pSS->PushFuncParam(pScript);
+			return true;
+		}
+		return false;
+	}
+
 	void MemScan(void *base, int size) {
 		char buffer[81920] = "";
 		for (int i = 0; i < size; i++) {
@@ -26,14 +47,16 @@ namespace sfw {
 		PFNSENDCHATMESSAGE func = (PFNSENDCHATMESSAGE)SendChatMessageAddr;
 		int ret = 0x10;
 		char *fmsg = 0;
-		SmartScriptTable pScript = pGameRules->GetEntity()->GetScriptTable();
-		pScriptSystem->BeginCall(pScript, "OnChatMessage");
-		pScriptSystem->PushFuncParam(pScript);
-		pScriptSystem->PushFuncParam(type);
-		pScriptSystem->PushFuncParam(sourceId);
-		pScriptSystem->PushFuncParam(targetId);
-		pScriptSystem->PushFuncParam(msg);
-		bool ok = pScriptSystem->EndCall(fmsg);
+		bool ok = false;
+
+		if(GRCall(pScriptSystem, "OnChatMessage")){
+			pScriptSystem->PushFuncParam(type);
+			pScriptSystem->PushFuncParam(sourceId);
+			pScriptSystem->PushFuncParam(targetId);
+			pScriptSystem->PushFuncParam(msg);
+			ok = pScriptSystem->EndCall(fmsg);
+		}
+
 		int Ver = GetGameVersion(0);
 		if (ok && fmsg) {
 			if (Ver == 6156) return true;
@@ -48,12 +71,12 @@ namespace sfw {
 		PFNRENAMEPLAYER func = (PFNRENAMEPLAYER)RenamePlayerAddr;
 		int ret = 0x8;
 		char *to = 0;
-		SmartScriptTable pScript = pGameRules->GetEntity()->GetScriptTable();
-		pScriptSystem->BeginCall(pScript, "OnPlayerRename");
-		pScriptSystem->PushFuncParam(pScript);
-		pScriptSystem->PushFuncParam(pActor->GetEntityId());
-		pScriptSystem->PushFuncParam(name);
-		bool ok = pScriptSystem->EndCall(to);
+		bool ok = false;
+		if (GRCall(pScriptSystem, "OnPlayerRename")) {
+			pScriptSystem->PushFuncParam(pActor->GetEntityId());
+			pScriptSystem->PushFuncParam(name);
+			ok = pScriptSystem->EndCall(to);
+		}
 		int Ver = GetGameVersion(0);
 		if (ok && to) {
 			if (Ver == 6156) return true;
@@ -92,16 +115,23 @@ namespace sfw {
 				*pos = 0;
 			//Network::GetIP(justHost,ip);
 			sprintf(ip, "%d.%d.%d.%d", (n_ip >> 24) & 255, (n_ip >> 16) & 255, (n_ip >> 8) & 255, (n_ip & 255));
-			SmartScriptTable pScript = pGameRules->GetEntity()->GetScriptTable();
-			pScriptSystem->BeginCall(pScript, "GatherClientData");
-			pScriptSystem->PushFuncParam(pScript);
-			pScriptSystem->PushFuncParam(channelId);
-			pScriptSystem->PushFuncParam(pNetChannel->GetName());
-			pScriptSystem->PushFuncParam(profid);
-			pScriptSystem->PushFuncParam(ip);
-			pScriptSystem->EndCall();
+			if (GRCall(pScriptSystem, "GatherClientData")) {
+				pScriptSystem->PushFuncParam(channelId);
+				pScriptSystem->PushFuncParam(pNetChannel->GetName());
+				pScriptSystem->PushFuncParam(profid);
+				pScriptSystem->PushFuncParam(ip);
+				pScriptSystem->EndCall();
+			}
 			if (Ver == 6156) {
-				gEnv->pGame->GetIGameFramework()->GetIGameRulesSystem()->GetCurrentGameRules()->SendTextMessage(eTextMessageConsole, sfw::msg, eRMI_ToClientChannel, channelId, 0, 0, 0, 0);
+				auto igf = gEnv->pGame->GetIGameFramework();
+				if (igf) {
+					auto igrs = igf->GetIGameRulesSystem();
+					if (igrs) {
+						auto igr = igrs->GetCurrentGameRules();
+						if (igr)
+							igr->SendTextMessage(eTextMessageConsole, sfw::msg, eRMI_ToClientChannel, channelId, 0, 0, 0, 0);
+					}
+				}
 			} else {
 				PFNSENDTEXTMESSAGE info = (PFNSENDTEXTMESSAGE)SendTextMessageAddr;
 				info(ecx, SendTextMessageAddr, eTextMessageConsole, sfw::msg, eRMI_ToClientChannel, channelId, 0, 0, 0, 0);
@@ -162,18 +192,17 @@ namespace sfw {
 		if (fm) {
 			EntityId wpnId = 0;
 			const char *entityClass = "<unknown>";
-			SmartScriptTable pScript = pGameRules->GetEntity()->GetScriptTable();
-			pScriptSystem->BeginCall(pScript, "ActorOnShoot");
-			pScriptSystem->PushFuncParam(pScript);
-			pScriptSystem->PushFuncParam(shooterId);
-			pScriptSystem->PushFuncParam(ammoId);
-			pScriptSystem->PushFuncParam(pos);
-			pScriptSystem->PushFuncParam(dir);
-			pScriptSystem->PushFuncParam(vel);
-			pScriptSystem->PushFuncParam(fireRate);
-			pScriptSystem->PushFuncParam(wpnId);
-			pScriptSystem->PushFuncParam(entityClass);
-			pScriptSystem->EndCall();
+			if (GRCall(pScriptSystem, "ActorOnShoot")) {
+				pScriptSystem->PushFuncParam(shooterId);
+				pScriptSystem->PushFuncParam(ammoId);
+				pScriptSystem->PushFuncParam(pos);
+				pScriptSystem->PushFuncParam(dir);
+				pScriptSystem->PushFuncParam(vel);
+				pScriptSystem->PushFuncParam(fireRate);
+				pScriptSystem->PushFuncParam(wpnId);
+				pScriptSystem->PushFuncParam(entityClass);
+				pScriptSystem->EndCall();
+			}
 		}
 		if (Ver != 6156) {
 			PFNCWEAPONONSHOOT func = (PFNCWEAPONONSHOOT)CWeapon_OnShoot;
@@ -204,12 +233,11 @@ namespace sfw {
 		IActor *pretend = GetActorByEntityId(sourceId);
 		if (client && client != pretend) {
 			if (kick) {
-				SmartScriptTable pScript = pGameRules->GetEntity()->GetScriptTable();
-				pScriptSystem->BeginCall(pScript, "OnCheatDetected");
-				pScriptSystem->PushFuncParam(pScript);
-				pScriptSystem->PushFuncParam(client->GetEntityId());
-				pScriptSystem->PushFuncParam(cht);
-				pScriptSystem->EndCall();
+				if (GRCall(pScriptSystem, "OnCheatDetected")) {
+					pScriptSystem->PushFuncParam(client->GetEntityId());
+					pScriptSystem->PushFuncParam(cht);
+					pScriptSystem->EndCall();
+				}
 			}
 			return true;
 		}
@@ -232,12 +260,11 @@ namespace sfw {
 				if (ent)
 					ok = strcmp(ent->GetClass()->GetName(), "AACannon") != 0;
 				if (ok) {
-					SmartScriptTable pScript = pGameRules->GetEntity()->GetScriptTable();
-					pScriptSystem->BeginCall(pScript, "OnCheatDetected");
-					pScriptSystem->PushFuncParam(pScript);
-					pScriptSystem->PushFuncParam(client->GetEntityId());
-					pScriptSystem->PushFuncParam("hit spoof");
-					pScriptSystem->EndCall();
+					if (GRCall(pScriptSystem, "OnCheatDetected")) {
+						pScriptSystem->PushFuncParam(client->GetEntityId());
+						pScriptSystem->PushFuncParam("hit spoof");
+						pScriptSystem->EndCall();
+					}
 					spoof = true;
 				}
 			}
