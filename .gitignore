@@ -1,0 +1,12 @@
+Bin32
+Bin64
+BinTemp
+Bin32/*
+Bin64/*
+BinTemp/*
+Code/.vs
+Code/.vs/*
+Code/Backup
+Code/Backup/*
+Code/Sfwcl
+Code/Sfwcl/*
