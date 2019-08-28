@@ -52,9 +52,13 @@ namespace sfw {
 		memset(cave, 0x90, sz + 64); //put some NOPs for safety first
 
 
-		DWORD flags;
-		VirtualProtect(cave, 4096, PAGE_EXECUTE_READWRITE, &flags);
-		VirtualProtect(ptr_old, 4096, PAGE_EXECUTE_READWRITE, &flags);
+		DWORD flags, oldFlags;
+		if (!VirtualProtect(cave, 4096, PAGE_EXECUTE_READWRITE, &flags)) {
+			MessageBoxA(0, "VP1 FAILED", 0, 0);
+		}
+		if (!VirtualProtect(ptr_old, 4096, PAGE_EXECUTE_READWRITE, &oldFlags)) {
+			MessageBoxA(0, "VP2 FAILED", 0, 0);
+		}
 
 		//Copy first sz bytes of original function to cave
 		cpymem(IP, ptr_old, sz);	//Weird, but MSVC crashes on memcpy here... gotta use this cpymem :-/
@@ -65,8 +69,7 @@ namespace sfw {
 		if (bits == 32) {
 			*IP = 0xE9; IP++;	// 0E9h = JMP
 			memcpy(IP, &jmpSz, sizeof(uintptr_t)); IP += sizeof(uintptr_t);
-		}
-		else if (bits == 64) {
+		} else if (bits == 64) {
 			//RAX is safe to use, 64bit __fastcall uses RCX, RDX, R8, R9 + stack on Windows
 
 			// MOVABS RAX, uint64_t
@@ -96,6 +99,7 @@ namespace sfw {
 			*IP = 0xFF; IP++;
 			*IP = 0xE0;
 		}
+		flags = 0;
 		return (void*)(cave);
 	}
 	int getGameVer(const char *file) {

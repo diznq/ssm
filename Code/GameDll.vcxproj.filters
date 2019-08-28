@@ -680,6 +680,9 @@
     <ClCompile Include="Sfw\Utilities.cpp">
       <Filter>Sfw</Filter>
     </ClCompile>
+    <ClCompile Include="Sfw\IATHook.cpp">
+      <Filter>Sfw</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -1227,6 +1230,9 @@
       <Filter>Sfw</Filter>
     </ClInclude>
     <ClInclude Include="Sfw\sfw.h">
+      <Filter>Sfw</Filter>
+    </ClInclude>
+    <ClInclude Include="Sfw\IATHook.h">
       <Filter>Sfw</Filter>
     </ClInclude>
   </ItemGroup>

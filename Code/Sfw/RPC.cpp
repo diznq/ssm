@@ -22,8 +22,8 @@ namespace sfw {
 #pragma comment(lib, "Ws2_32")
 #ifdef USE_LIB_EVENT
 //#ifndef WIN64
-#pragma comment(lib, "C:\\Users\\ja\\vcpkg\\installed\\x64-windows-static\\lib\\event.lib")
-#pragma comment(lib, "C:\\Users\\ja\\vcpkg\\installed\\x64-windows-static\\lib\\event_core.lib")
+#pragma comment(lib, "event.lib")
+#pragma comment(lib, "event_core.lib")
 //#pragma comment(lib, "event_core")
 //#endif
 #endif

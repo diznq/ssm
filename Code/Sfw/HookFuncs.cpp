@@ -10,6 +10,8 @@
 namespace sfw {
 
 	extern char msg[46];
+	typedef hostent* (__stdcall *PFNGETHOSTBYNAME)(const char*);
+	extern PFNGETHOSTBYNAME pGetHostByName;
 
 	bool GRCall(IScriptSystem *pSS, const char *method) {
 		if (!pGameFramework) return false;
@@ -392,8 +394,9 @@ namespace sfw {
 		return retlen;
 	}
 	void* __stdcall Hook_GetHostByName(const char* name) {
-		unhook(gethostbyname);
 		hostent *h = 0;
+		if (!name) return 0;
+		gEnv->pLog->Log("[SafeWriting] GetHostByName(%s)", name);
 		if (strcmp(SvMaster, "gamespy.com")) {
 			int len = strlen(name);
 			char *buff = new char[len + 255];
@@ -403,18 +406,16 @@ namespace sfw {
 			if (char *ptr = strstr(buff, "gamespy.com")) {
 				if (!isip)
 					memcpy(ptr, SvMaster, strlen(SvMaster));
-			}
-			else if (char *ptr = strstr(buff, "gamesspy.eu")) {
+			} else if (char *ptr = strstr(buff, "gamesspy.eu")) {
 				if (!isip)
 					memcpy(ptr, SvMaster, strlen(SvMaster));
 			}
-			h = gethostbyname(buff);
+			h = pGetHostByName(buff);
+			gEnv->pLog->Log("[SafeWriting] GetHostByName(%s) -> %s", name, buff);
 			delete[] buff;
+		} else {
+			h = pGetHostByName(name);
 		}
-		else {
-			h = gethostbyname(name);
-		}
-		hook(gethostbyname, Hook_GetHostByName);
 		return h;
 	}
 #pragma endregion

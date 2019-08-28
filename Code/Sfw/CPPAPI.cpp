@@ -193,14 +193,20 @@ namespace sfw {
 		return pH->EndFunction();
 	}
 	int CPPAPI::GetLocalIP(IFunctionHandler* pH) {
-		char hostn[255];
+		static char hostn[255];
+		static bool got = false;
+		if (got) {
+			return pH->EndFunction(hostn);
+		}
 		if (gethostname(hostn, sizeof(hostn)) != SOCKET_ERROR) {
 			struct hostent *host = gethostbyname(hostn);
 			if (host) {
 				for (int i = 0; host->h_addr_list[i] != 0; ++i) {
 					struct in_addr addr;
 					memcpy(&addr, host->h_addr_list[i], sizeof(struct in_addr));
-					return pH->EndFunction(inet_ntoa(addr));
+					strcpy(hostn, inet_ntoa(addr));
+					got = true;
+					return pH->EndFunction(hostn);
 				}
 			}
 		}

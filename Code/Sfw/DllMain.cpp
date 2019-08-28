@@ -16,6 +16,7 @@
 #include "RPC.h"
 #include "Helpers.h"
 #include "sfw.h"
+#include "IATHook.h"
 
 namespace sfw {
 
@@ -24,7 +25,9 @@ namespace sfw {
 #pragma region StaticVariables
 
 typedef int(__fastcall *PFNGU)(void*, void*, bool, unsigned int);
+typedef hostent* (__stdcall *PFNGETHOSTBYNAME)(const char*);
 PFNGU pGameUpdate = 0;
+PFNGETHOSTBYNAME pGetHostByName = 0;
 
 std::deque<AsyncData*> asyncQueue;
 std::map<std::string, std::string> asyncRetVal;
@@ -106,13 +109,6 @@ bool PostInitScripts(bool force) {
 #pragma region GameUpdate
 int __fastcall GameUpdate(void* self, void *addr, bool p1, unsigned int p2) {
 	static bool first = true;
-	static FILE *jobInfo = 0;
-	if (jobInfo == 0) {
-		unsigned long long t = time(0);
-		char file[100];
-		sprintf(file, "jobs_%llu_%d.txt", t, rand()%1000);
-		jobInfo = fopen(file, "wb"); 
-	}
 	bool eventFinished = false;
 	int ver = GetGameVersion(0);
 #ifdef OUTER_FILES
@@ -129,7 +125,6 @@ int __fastcall GameUpdate(void* self, void *addr, bool p1, unsigned int p2) {
 			AsyncData *obj = *it;
 			if (obj) {
 				if (obj->finished) {
-					fprintf(jobInfo, "Job %p finished, removing it\n", obj);
 					try {
 						obj->postExec();
 					} catch (std::exception& ex) {
@@ -143,7 +138,6 @@ int __fastcall GameUpdate(void* self, void *addr, bool p1, unsigned int p2) {
 					eventFinished = true;
 					g_objectsInQueue--;
 					it = asyncQueue.erase(it);
-					fprintf(jobInfo, "Successfuly removed!\n");
 				} else if (obj->executing) {
 					try {
 						obj->onUpdate();
@@ -223,12 +217,47 @@ int __fastcall GameUpdate(void* self, void *addr, bool p1, unsigned int p2) {
 				
 				//pGameUpdate = (PFNGU)hookp((void*)0x390B5A40, (void*)GameUpdate, 7);
 			} else pGameUpdate = (PFNGU)hookp((void*)0x390B3EB0, (void*)GameUpdate, 7);
-			hook(gethostbyname, Hook_GetHostByName);
+			
+			LoadLibraryA("CryNetwork.dll");
+			HMODULE hMod = GetModuleHandleA("ws2_32.dll");
+			HMODULE hCryNetwork = GetModuleHandleA("CryNetwork.dll");
+			if (hMod && hCryNetwork) {
+				pGetHostByName = (PFNGETHOSTBYNAME)GetProcAddress(hMod, "gethostbyname");
+				if (pGetHostByName) {
+					int ret = IATHookByAddress(hCryNetwork, pGetHostByName, Hook_GetHostByName);
+					if (ret < 0) {
+						char msg[50];
+						sprintf(msg, "Failed to hook gethostbyname: %d", GetLastError());
+						MessageBoxA(0, msg, "ERROR", MB_OK | MB_ICONERROR);
+					}
+				} else MessageBoxA(0, "gethostbyname not found", 0, 0); 
+			} else {
+				if (!hMod) MessageBoxA(0, "Ws2_32 not found", 0, 0);
+				if (!hCryNetwork) MessageBoxA(0, "CryNetwork not found", 0, 0);
+			}
+
+			//gEnv->pLog->Log("Local gethosbyname: %p, real: %p\n", gethostbyname, GHBAddr);
+
 			if (version != 6156) {
 				HMODULE lib = LoadLibraryA(".\\.\\.\\Bin32\\CryGame.dll");
 				PFNCREATEGAME createGame = (PFNCREATEGAME)GetProcAddress(lib, "CreateGame");
 				pGame = createGame(pGameFramework);
-			} else pGame = 0;
+			} else {
+				/*
+				gEnv->pLog->Log("[SafeWriting] Running DNS check");
+				hostent* h = gethostbyname("gamespy.com");
+				if (!h) {
+					gEnv->pLog->Log("[SafeWriting] DNS check failed");
+				} else {
+					for (int i = 0; h->h_addr_list[i] != 0; ++i) {
+						struct in_addr addr;
+						memcpy(&addr, h->h_addr_list[i], sizeof(struct in_addr));
+						gEnv->pLog->Log("[SafeWriting] DNS test returns %s", inet_ntoa(addr));
+					}
+				}
+				*/
+				pGame = 0;
+			}
 			pGameFramework = pGameFramework;
 			pSystem = pGameFramework->GetISystem();
 			pConsole = pSystem->GetIConsole();

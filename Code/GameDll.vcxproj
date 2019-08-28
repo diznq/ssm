@@ -94,6 +94,7 @@
     <IntDir>$(SolutionDir)..\BinTemp\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>C:\Users\ja\vcpkg\installed\x64-windows-static\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -377,6 +378,7 @@
     <ClCompile Include="Sfw\CVars.cpp" />
     <ClCompile Include="Sfw\DllMain.cpp" />
     <ClCompile Include="Sfw\HookFuncs.cpp" />
+    <ClCompile Include="Sfw\IATHook.cpp" />
     <ClCompile Include="Sfw\IntegrityService.cpp" />
     <ClCompile Include="Sfw\NetworkStuff.cpp" />
     <ClCompile Include="Sfw\RPC.cpp" />
@@ -569,6 +571,7 @@
     <ClInclude Include="Sfw\CVars.h" />
     <ClInclude Include="Sfw\Helpers.h" />
     <ClInclude Include="Sfw\HookDefs.h" />
+    <ClInclude Include="Sfw\IATHook.h" />
     <ClInclude Include="Sfw\IntegrityService.h" />
     <ClInclude Include="Sfw\Mutex.h" />
     <ClInclude Include="Sfw\NetworkStuff.h" />
