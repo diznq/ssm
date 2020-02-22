@@ -30,7 +30,7 @@ class CFists : public CWeapon
 
 public:
 
-	enum EFistAnimState
+	typedef enum EFistAnimState
 	{
 		eFAS_NOSTATE	= -1,
 		eFAS_RELAXED  =  0,

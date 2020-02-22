@@ -88,6 +88,12 @@
     <Filter Include="Sfw">
       <UniqueIdentifier>{e08cda1a-8853-4a69-aea8-fc201bc21aa5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SSM">
+      <UniqueIdentifier>{603e17aa-130e-4765-a7a7-c0473a9190c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SSM\Libs">
+      <UniqueIdentifier>{6eae2217-7fb4-4b47-80ae-df5b3f824401}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameDll.cpp">
@@ -647,41 +653,8 @@
     </ClCompile>
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="StdAfx.cpp" />
-    <ClCompile Include="Sfw\CPPAPI.cpp">
-      <Filter>Sfw</Filter>
-    </ClCompile>
-    <ClCompile Include="Sfw\Crypto.cpp">
-      <Filter>Sfw</Filter>
-    </ClCompile>
-    <ClCompile Include="Sfw\CVars.cpp">
-      <Filter>Sfw</Filter>
-    </ClCompile>
-    <ClCompile Include="Sfw\DllMain.cpp">
-      <Filter>Sfw</Filter>
-    </ClCompile>
-    <ClCompile Include="Sfw\HookFuncs.cpp">
-      <Filter>Sfw</Filter>
-    </ClCompile>
-    <ClCompile Include="Sfw\IntegrityService.cpp">
-      <Filter>Sfw</Filter>
-    </ClCompile>
-    <ClCompile Include="Sfw\NetworkStuff.cpp">
-      <Filter>Sfw</Filter>
-    </ClCompile>
-    <ClCompile Include="Sfw\RPC.cpp">
-      <Filter>Sfw</Filter>
-    </ClCompile>
-    <ClCompile Include="Sfw\SafeWritingAPI.cpp">
-      <Filter>Sfw</Filter>
-    </ClCompile>
-    <ClCompile Include="Sfw\Shared.cpp">
-      <Filter>Sfw</Filter>
-    </ClCompile>
-    <ClCompile Include="Sfw\Utilities.cpp">
-      <Filter>Sfw</Filter>
-    </ClCompile>
-    <ClCompile Include="Sfw\IATHook.cpp">
-      <Filter>Sfw</Filter>
+    <ClCompile Include="SSM.cpp">
+      <Filter>SSM</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1169,71 +1142,17 @@
       <Filter>Flash</Filter>
     </ClInclude>
     <ClInclude Include="StdAfx.h" />
-    <ClInclude Include="Sfw\Addresses.h">
-      <Filter>Sfw</Filter>
+    <ClInclude Include="ISSM.h">
+      <Filter>SSM</Filter>
     </ClInclude>
-    <ClInclude Include="Sfw\Alternative.h">
-      <Filter>Sfw</Filter>
+    <ClInclude Include="SSM.h">
+      <Filter>SSM</Filter>
     </ClInclude>
-    <ClInclude Include="Sfw\API.h">
-      <Filter>Sfw</Filter>
+    <ClInclude Include="BlockingConcurrentQueue.h">
+      <Filter>SSM\Libs</Filter>
     </ClInclude>
-    <ClInclude Include="Sfw\Atomic.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\AtomicCounter.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\BlockingConcurrentQueue.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\ConcurrentQueue.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\CPPAPI.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\CryIncludes.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\Crypto.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\CVars.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\Helpers.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\HookDefs.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\IntegrityService.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\Mutex.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\NetworkStuff.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\RPC.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\SafeWritingAPI.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\Shared.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\Utilities.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\sfw.h">
-      <Filter>Sfw</Filter>
-    </ClInclude>
-    <ClInclude Include="Sfw\IATHook.h">
-      <Filter>Sfw</Filter>
+    <ClInclude Include="ConcurrentQueue.h">
+      <Filter>SSM\Libs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

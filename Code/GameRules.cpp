@@ -40,8 +40,6 @@
 #include "SPAnalyst.h"
 #include "IWorldQuery.h"
 
-#include "Sfw/HookDefs.h"
-
 #include <StlUtils.h>
 #include <StringUtils.h>
 
@@ -541,7 +539,6 @@ void CGameRules::OnResetMap()
 //------------------------------------------------------------------------
 bool CGameRules::OnClientConnect(int channelId, bool isReset)
 {
-
 	if (!isReset)
 	{
 		m_channelIds.push_back(channelId);
@@ -588,8 +585,6 @@ bool CGameRules::OnClientConnect(int channelId, bool isReset)
 			SetTeam(GetChannelTeam(channelId), pActor->GetEntityId());
 		}
 	}
-
-	sfw::OnClientConnect(this, 0, channelId, isReset);
 
 	return pActor != 0;
 }
@@ -999,7 +994,6 @@ void CGameRules::RevivePlayerInVehicle(CActor *pActor, EntityId vehicleId, int s
 //------------------------------------------------------------------------
 void CGameRules::RenamePlayer(CActor *pActor, const char *name)
 {
-	if (!sfw::RenamePlayer(this, 0, pActor, name)) return;
 	string fixed=VerifyName(name, pActor->GetEntity());
 	RenameEntityParams params(pActor->GetEntityId(), fixed.c_str());
 	if (!stricmp(fixed.c_str(), pActor->GetEntity()->GetName()))
@@ -2839,7 +2833,6 @@ void CGameRules::ChatLog(EChatMessageType type, EntityId sourceId, EntityId targ
 //------------------------------------------------------------------------
 void CGameRules::SendChatMessage(EChatMessageType type, EntityId sourceId, EntityId targetId, const char *msg)
 {
-	if (!sfw::SendChatMessage(this, 0, type, sourceId, targetId, msg)) return;
 	ChatMessageParams params(type, sourceId, targetId, msg, (type == eChatToTeam)?true:false);
 
 	bool sdead=IsDead(sourceId);
@@ -2893,15 +2886,9 @@ void CGameRules::SendChatMessage(EChatMessageType type, EntityId sourceId, Entit
 			}
 			break;
 		}
-	} else {
-		if (params.msg.at(0) == '$') {
-			StartVotingParams voteParams;
-			voteParams.vote_type = eVS_consoleCmd;
-			voteParams.entityId = sourceId;
-			voteParams.param = params.msg.substr(1);
-			GetGameObject()->InvokeRMI(SvStartVoting(), voteParams, eRMI_ToServer);
-		} else GetGameObject()->InvokeRMI(SvRequestChatMessage(), params, eRMI_ToServer);
 	}
+	else
+		GetGameObject()->InvokeRMI(SvRequestChatMessage(), params, eRMI_ToServer);
 }
 
 //------------------------------------------------------------------------

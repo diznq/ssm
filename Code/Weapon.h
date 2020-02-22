@@ -59,7 +59,7 @@ protected:
 
 	typedef std::vector<SListenerInfo>					TEventListenerVector;
 
-	struct SWeaponCrosshairStats
+	typedef struct SWeaponCrosshairStats
 	{
 		SWeaponCrosshairStats():
 			fading(false),

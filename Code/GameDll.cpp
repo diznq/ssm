@@ -13,26 +13,18 @@
 *************************************************************************/
 #include "StdAfx.h"
 #include "Game.h"
-#include "Sfw/sfw.h"
 
 #include <CryLibrary.h>
 #include <platform_impl.h>
 
-namespace sfw {
-	extern IGame *pGame;
-}
 
 extern "C"
 {
 	GAME_API IGame *CreateGame(IGameFramework* pGameFramework)
 	{
-		void *pGame = sfw::CreateGame(pGameFramework);
-		if (pGame) return (IGame*)pGame;
 		ModuleInitISystem(pGameFramework->GetISystem());
 
 		static char pGameBuffer[sizeof(CGame)];
-		IGame* pGameObj = new ((void*)pGameBuffer) CGame();
-		sfw::pGame = pGameObj;
-		return pGameObj;
+		return new ((void*)pGameBuffer) CGame();
 	}
 }

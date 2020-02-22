@@ -23,29 +23,29 @@
     <ProjectGuid>{2EB52047-0A81-4343-B703-DF221CA5CC2A}</ProjectGuid>
     <RootNamespace>SafeWriting</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <VcpkgTriplet Condition="'$(Platform)'=='Win32'">x86-windows-static</VcpkgTriplet>
     <VcpkgTriplet Condition="'$(Platform)'=='x64'">x64-windows-static</VcpkgTriplet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -87,7 +87,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Users\ja\Documents\libevent\include</IncludePath>
     <LibraryPath>C:\Users\ja\Documents\libevent\build\lib\Release;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
-    <TargetName>SafeWriting</TargetName>
+    <TargetName>SSM</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
     <OutDir>$(SolutionDir)..\Bin64\</OutDir>
@@ -373,18 +373,6 @@
     <ClCompile Include="ScriptControlledPhysics.cpp" />
     <ClCompile Include="ScriptUtils.cpp" />
     <ClCompile Include="ServerSynchedStorage.cpp" />
-    <ClCompile Include="Sfw\CPPAPI.cpp" />
-    <ClCompile Include="Sfw\Crypto.cpp" />
-    <ClCompile Include="Sfw\CVars.cpp" />
-    <ClCompile Include="Sfw\DllMain.cpp" />
-    <ClCompile Include="Sfw\HookFuncs.cpp" />
-    <ClCompile Include="Sfw\IATHook.cpp" />
-    <ClCompile Include="Sfw\IntegrityService.cpp" />
-    <ClCompile Include="Sfw\NetworkStuff.cpp" />
-    <ClCompile Include="Sfw\RPC.cpp" />
-    <ClCompile Include="Sfw\SafeWritingAPI.cpp" />
-    <ClCompile Include="Sfw\Shared.cpp" />
-    <ClCompile Include="Sfw\Utilities.cpp" />
     <ClCompile Include="Shark.cpp" />
     <ClCompile Include="SharkMovementController.cpp" />
     <ClCompile Include="Shotgun.cpp" />
@@ -393,6 +381,7 @@
     <ClCompile Include="SingleTG.cpp" />
     <ClCompile Include="SoundMoods.cpp" />
     <ClCompile Include="SPAnalyst.cpp" />
+    <ClCompile Include="SSM.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -446,6 +435,7 @@
     <ClInclude Include="AVMine.h" />
     <ClInclude Include="Beam.h" />
     <ClInclude Include="Binocular.h" />
+    <ClInclude Include="BlockingConcurrentQueue.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="BulletTime.h" />
     <ClInclude Include="Burst.h" />
@@ -456,6 +446,7 @@
     <ClInclude Include="Claymore.h" />
     <ClInclude Include="ClientSynchedStorage.h" />
     <ClInclude Include="CompatibilityAlienMovementController.h" />
+    <ClInclude Include="ConcurrentQueue.h" />
     <ClInclude Include="DebugGun.h" />
     <ClInclude Include="Detonate.h" />
     <ClInclude Include="EMPField.h" />
@@ -505,6 +496,7 @@
     <ClInclude Include="Hunter.h" />
     <ClInclude Include="IPlayerInput.h" />
     <ClInclude Include="IronSight.h" />
+    <ClInclude Include="ISSM.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="ItemParamReader.h" />
     <ClInclude Include="ItemScheduler.h" />
@@ -558,28 +550,6 @@
     <ClInclude Include="ScriptControlledPhysics.h" />
     <ClInclude Include="ScriptUtils.h" />
     <ClInclude Include="ServerSynchedStorage.h" />
-    <ClInclude Include="Sfw\Addresses.h" />
-    <ClInclude Include="Sfw\Alternative.h" />
-    <ClInclude Include="Sfw\API.h" />
-    <ClInclude Include="Sfw\Atomic.h" />
-    <ClInclude Include="Sfw\AtomicCounter.h" />
-    <ClInclude Include="Sfw\BlockingConcurrentQueue.h" />
-    <ClInclude Include="Sfw\ConcurrentQueue.h" />
-    <ClInclude Include="Sfw\CPPAPI.h" />
-    <ClInclude Include="Sfw\CryIncludes.h" />
-    <ClInclude Include="Sfw\Crypto.h" />
-    <ClInclude Include="Sfw\CVars.h" />
-    <ClInclude Include="Sfw\Helpers.h" />
-    <ClInclude Include="Sfw\HookDefs.h" />
-    <ClInclude Include="Sfw\IATHook.h" />
-    <ClInclude Include="Sfw\IntegrityService.h" />
-    <ClInclude Include="Sfw\Mutex.h" />
-    <ClInclude Include="Sfw\NetworkStuff.h" />
-    <ClInclude Include="Sfw\RPC.h" />
-    <ClInclude Include="Sfw\SafeWritingAPI.h" />
-    <ClInclude Include="Sfw\sfw.h" />
-    <ClInclude Include="Sfw\Shared.h" />
-    <ClInclude Include="Sfw\Utilities.h" />
     <ClInclude Include="Shark.h" />
     <ClInclude Include="SharkMovementController.h" />
     <ClInclude Include="Shotgun.h" />
@@ -588,6 +558,7 @@
     <ClInclude Include="SingleTG.h" />
     <ClInclude Include="SoundMoods.h" />
     <ClInclude Include="SPAnalyst.h" />
+    <ClInclude Include="SSM.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="SynchedStorage.h" />
     <ClInclude Include="TacBullet.h" />

@@ -77,7 +77,7 @@ enum EOffHandSounds
 class COffHand : public CWeapon
 {
 
-	struct SGrabType
+	typedef struct SGrabType
 	{
 		ItemString	helper;
 		ItemString	pickup;

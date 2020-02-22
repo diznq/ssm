@@ -29,7 +29,7 @@ class CLam : public CItem
 
 public:
 
-  struct SLAMParams
+  typedef struct SLAMParams
   {   
     SLAMParams() 
     { 
@@ -144,7 +144,8 @@ public:
 		bool  giveExtraAccessory;
 		bool  isLamRifle;
 		ItemString extraAccessoryName;
-  };
+  } 
+  SLAMParams;
 
 	CLam();
 	virtual			~CLam();

@@ -57,8 +57,6 @@
 #include "ISaveGame.h"
 #include "ILoadGame.h"
 
-#include "Sfw/sfw.h"
-
 #define GAME_DEBUG_MEM  // debug memory usage
 #undef  GAME_DEBUG_MEM
 
@@ -394,7 +392,6 @@ bool CGame::CompleteInit()
 
 int CGame::Update(bool haveFocus, unsigned int updateFlags)
 {
-	sfw::GameUpdate(this, 0, haveFocus, updateFlags);
 	bool bRun = m_pFramework->PreUpdate( true, updateFlags );
 	float frameTime = gEnv->pTimer->GetFrameTime();
 

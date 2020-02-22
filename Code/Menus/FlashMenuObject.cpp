@@ -44,7 +44,6 @@ History:
 #include "GameNetworkProfile.h"
 #include "SPAnalyst.h"
 
-
 //both are defined again in FlashMenuObjectOptions
 static const char* scuiControlCodePrefix = "@cc_"; // "@cc_"; // AlexL 03/04/2007: enable this when keys/controls are fully localized
 static const size_t scuiControlCodePrefixLen = strlen(scuiControlCodePrefix);

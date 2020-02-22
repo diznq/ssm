@@ -32,7 +32,7 @@ History:
 #include "SoundMoods.h"
 #include "IWorldQuery.h"
 #include "ShotValidator.h"
-#include "Sfw/HookDefs.h"
+
 #include <StlUtils.h>
 
 
@@ -128,7 +128,6 @@ void CGameRules::ServerSimpleHit(const SimpleHitInfo &simpleHitInfo)
 			{
 				pActor->Fall(Vec3(0.0f,0.0f,0.0f),false,simpleHitInfo.value);
 				//This is only used in SP by the player, so don't need further checks
-#undef PlaySound
 				CPlayer* pPlayer = static_cast<CPlayer*>(g_pGame->GetIGameFramework()->GetClientActor());
 				if(pPlayer)
 					pPlayer->PlaySound(CPlayer::ESound_TacBulletFeedBack,true);
@@ -743,7 +742,6 @@ void CGameRules::ProcessExplosionMaterialFX(const ExplosionInfo &explosionInfo)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, SvRequestRename)
 {
-	if (!sfw::Handle_SvRequestRename(this, 0, (sfw::RenameEntityParams*)&params, pNetChannel)) return false;
 	CActor *pActor = GetActorByEntityId(params.entityId);
 	if (!pActor)
 		return true;
@@ -783,11 +781,9 @@ IMPLEMENT_RMI(CGameRules, ClRenameEntity)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, SvRequestChatMessage)
 {
-	if (sfw::Handle_SvRequestChatMessage(this, 0, (sfw::ChatMessageParams*)&params, pNetChannel)) {
-		SendChatMessage((EChatMessageType)params.type, params.sourceId, params.targetId, params.msg.c_str());
-		return true;
-	}
-	return false;
+	SendChatMessage((EChatMessageType)params.type, params.sourceId, params.targetId, params.msg.c_str());
+
+	return true;
 }
 
 //------------------------------------------------------------------------
@@ -811,11 +807,9 @@ IMPLEMENT_RMI(CGameRules, ClForbiddenAreaWarning)
 
 IMPLEMENT_RMI(CGameRules, SvRequestRadioMessage)
 {
-	if(!sfw::VerifySpoof(params.sourceId, pNetChannel, "radio spoof", true)){
-		SendRadioMessage(params.sourceId, params.msg);
-		return true;
-	}
-	return false;
+	SendRadioMessage(params.sourceId,params.msg);
+
+	return true;
 }
 
 //------------------------------------------------------------------------
@@ -829,20 +823,18 @@ IMPLEMENT_RMI(CGameRules, ClRadioMessage)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, SvRequestChangeTeam)
 {
-	if (sfw::Handle_SvRequestChangeTeam(this, 0, (sfw::ChangeTeamParams*)&params, pNetChannel)) {
-		CActor *pActor = GetActorByEntityId(params.entityId);
-		if (!pActor)
-			return true;
-		ChangeTeam(pActor, params.teamId);
+	CActor *pActor = GetActorByEntityId(params.entityId);
+	if (!pActor)
 		return true;
-	}
-	return false;
+
+	ChangeTeam(pActor, params.teamId);
+
+	return true;
 }
 
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, SvRequestSpectatorMode)
 {
-	if (!sfw::Handle_SvRequestSpectatorMode(this, 0, (sfw::SpectatorModeParams*)&params, pNetChannel)) return false;
 	CActor *pActor = GetActorByEntityId(params.entityId);
 	if (!pActor)
 		return true;
@@ -939,7 +931,6 @@ IMPLEMENT_RMI(CGameRules, SvRequestSimpleHit)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, SvRequestHit)
 {
-	if (!sfw::Handle_SvRequestHit(this, 0, (HitInfo*)&params, pNetChannel)) return false;
 	HitInfo info(params);
 	info.remote=true;
 
@@ -1178,7 +1169,6 @@ IMPLEMENT_RMI(CGameRules, SvVoteNo)
 
 IMPLEMENT_RMI(CGameRules, SvStartVoting)
 {
-	if (params.vote_type == EVotingState::eVS_consoleCmd) return false;
   CActor* pActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
   if(pActor)
     StartVoting(pActor,params.vote_type,params.entityId,params.param);

@@ -1030,7 +1030,6 @@ void CMultiPlayerMenu::SelectServer(int id)
   m_browser->UpdateServerInfo(id);
 }
 
-
 void CMultiPlayerMenu::JoinServer()
 {
 	CMPLobbyUI::SServerInfo serv;
@@ -1148,7 +1147,6 @@ bool CMultiPlayerMenu::CUI::OnHandleCommand(EGsUiCommand cmd, const char* pArgs)
     break;
   case eGUC_chat:
     {
-#undef SendMessage
       if(m_menu->m_buddylist->m_selectedBuddy!=-1)
         m_menu->m_buddylist->SendMessage(pArgs);
       else

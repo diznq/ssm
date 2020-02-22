@@ -25,7 +25,7 @@ History:
 class CRapid : public CSingle
 {
 protected:
-	struct SRapidParams
+	typedef struct SRapidParams
 	{
 		SRapidParams() { Reset(); };
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
@@ -58,9 +58,9 @@ protected:
 		ItemString barrel_attachment;
 		ItemString engine_attachment;		
 
-	};
+	} SRapidParams;
 
-	struct SRapidActions
+	typedef struct SRapidActions
 	{
 		SRapidActions() { Reset(); };
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
@@ -79,7 +79,7 @@ protected:
 		ItemString rapid_fire;
 		ItemString blast;
 
-	};
+	} SRapidActions;
 
 public:
 	CRapid();

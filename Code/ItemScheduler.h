@@ -75,12 +75,12 @@ typename CSchedulerAction<T>::Alloc CSchedulerAction<T>::m_alloc;
 
 class CItemScheduler
 {
-	struct SScheduledAction
+	typedef struct SScheduledAction
 	{
 		ISchedulerAction	*action;
 		bool							persist;
 	};
-	struct STimerAction
+	typedef struct STimerAction
 	{
 		ISchedulerAction	*action;
 		float							time;

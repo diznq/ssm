@@ -17,6 +17,7 @@ History:
 #include "OptionsManager.h"
 #include "GameNetworkProfile.h"
 #include "GameCVars.h"
+
 static const char* MPPath = "_root.Root.MainMenu.MultiPlayer.\0";
 
 static TKeyValuePair<ESortColumn,const char*>
@@ -1335,7 +1336,6 @@ bool  CMPLobbyUI::GetSelectedServer(SServerInfo& srv)
   if(m_serverlist->m_selectedServer==-1)
     return false;
   srv = m_serverlist->GetSelectedServer();
-
   return true;
 }
 

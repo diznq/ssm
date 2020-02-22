@@ -583,7 +583,6 @@ void CMPHub::TryLogin( bool lobby )
 
 void CMPHub::ShowLoginDlg()
 {
-  /*
   if(!m_currentScreen)
     return;
   SFlashVarValue params[] = {"1",m_options.remeber,m_options.autologin};
@@ -594,7 +593,6 @@ void CMPHub::ShowLoginDlg()
 	else
 		m_currentScreen->SetVariable("_root.Root.MainMenu.MultiPlayer.LoginScreen.Login_Controls.LoginStats.Colorset.Password.text","");
 	m_currentScreen->Invoke0("_root.Root.MainMenu.MultiPlayer.updateLoginScreen");
-	*/
 }
 
 void CMPHub::CloseLoginDlg()
@@ -1004,7 +1002,8 @@ struct STSPDownload: public IDownloadStream
 
 static bool GameSpyCheck()
 {
-	return true;
+	INetworkService* gs = gEnv->pNetwork->GetService("GameSpy");
+	return gs->GetState() != eNSS_Initializing;
 }
  
 void CMPHub::OnMenuOpened()

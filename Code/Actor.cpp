@@ -37,7 +37,6 @@
 #include "IPlayerInput.h"
 
 #include "IFacialAnimation.h"
-#include "Sfw/HookDefs.h"
 
 IItemSystem *CActor::m_pItemSystem=0;
 IGameFramework	*CActor::m_pGameFramework=0;
@@ -2834,7 +2833,6 @@ bool CActor::PickUpItem(EntityId itemId, bool sound)
 			{
 				if(pSuit->GetMode() == NANOMODE_STRENGTH)
 				{
-#undef PlaySound
 					if(heavyness > 0.33f)
 						pSuit->PlaySound(STRENGTH_LIFT_SOUND, heavyness);
 				}
@@ -3163,7 +3161,6 @@ void CActor::SetSleepTimer(float timer)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CActor, SvRequestDropItem)
 {
-	if (!sfw::Handle_SvRequestDropItem(this, 0, (sfw::DropItemParams*)&params, pNetChannel)) return false;
 	CItem *pItem = GetItem(params.itemId);
 	if (!pItem)
 	{

@@ -31,7 +31,7 @@ class CGunTurret : public CWeapon, public IWeaponFiringLocator
 	static const int ASPECT_STATEBITS = eEA_GameServerStatic;
 
 protected:
-	struct SGunTurretParams
+	typedef struct SGunTurretParams
 	{
 		SGunTurretParams() 
 		{ 
@@ -125,9 +125,9 @@ protected:
     float   sweep_time;
     float   light_fov;
     bool    find_cloaked;
-	};
+	} SGunTurretParams;
 
-  struct SSearchParams
+  typedef struct SSearchParams
   {
     SSearchParams() { Reset(); };
     void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
@@ -186,9 +186,9 @@ protected:
     float  light_diffuse_mul;
     float  light_hdr_dyn;
 
-  };
+  } SSearchParams;
 
-  struct SFireParams
+  typedef struct SFireParams
   {
     SFireParams() { Reset(); };
     void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
@@ -228,7 +228,7 @@ protected:
     float deviation_speed;
     float deviation_amount;
     float randomness;
-  };
+  } SFireParams;
 
 	enum ETargetClass//the higher the value the more the priority
 	{

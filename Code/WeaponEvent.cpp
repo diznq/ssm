@@ -21,9 +21,6 @@ History:
 #include <IActorSystem.h>
 #include <IAISystem.h>
 #include <IAgent.h>
-#include "Sfw/HookDefs.h"
-
-#undef PlaySound
 
 CWeapon::TEventListenerVector * CWeapon::m_listenerCache = 0;
 bool CWeapon::m_listenerCacheInUse = false;
@@ -48,7 +45,6 @@ bool CWeapon::m_listenerCacheInUse = false;
 //------------------------------------------------------------------------
 void CWeapon::OnShoot(EntityId shooterId, EntityId ammoId, IEntityClass* pAmmoType, const Vec3 &pos, const Vec3 &dir, const Vec3&vel)
 {
-	sfw::Hook_CWeaponOnShoot(this, m_fm, shooterId, ammoId, pAmmoType, pos, dir, vel);
 	BROADCAST_WEAPON_EVENT(OnShoot, (this, shooterId, ammoId, pAmmoType, pos, dir, vel));
 
 	//FIXME:quick temporary solution
@@ -57,7 +53,6 @@ void CWeapon::OnShoot(EntityId shooterId, EntityId ammoId, IEntityClass* pAmmoTy
 		pActor->HandleEvent(SGameObjectEvent(eCGE_OnShoot,eGOEF_ToExtensions));
 
 	IActor *pClientActor=m_pGameFramework->GetClientActor();
-
 
 	if (pActor && pActor->GetActorClass() == CPlayer::GetActorClassType() && IsServer())
 	{

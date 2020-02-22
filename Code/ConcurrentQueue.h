@@ -717,13 +717,13 @@ namespace moodycamel {
 #pragma warning(pop)
 #endif
 
-		static_assert(!std::numeric_limits<size_t>::is_signed && std::is_integral<size_t>::value, "Traits::size_t must be an unsigned integral type");
-		static_assert(!std::numeric_limits<index_t>::is_signed && std::is_integral<index_t>::value, "Traits::index_t must be an unsigned integral type");
+		static_assert(!std::numeric_limits<size_t>::is_signed&& std::is_integral<size_t>::value, "Traits::size_t must be an unsigned integral type");
+		static_assert(!std::numeric_limits<index_t>::is_signed&& std::is_integral<index_t>::value, "Traits::index_t must be an unsigned integral type");
 		static_assert(sizeof(index_t) >= sizeof(size_t), "Traits::index_t must be at least as wide as Traits::size_t");
-		static_assert((BLOCK_SIZE > 1) && !(BLOCK_SIZE & (BLOCK_SIZE - 1)), "Traits::BLOCK_SIZE must be a power of 2 (and at least 2)");
-		static_assert((EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD > 1) && !(EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD & (EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD - 1)), "Traits::EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD must be a power of 2 (and greater than 1)");
-		static_assert((EXPLICIT_INITIAL_INDEX_SIZE > 1) && !(EXPLICIT_INITIAL_INDEX_SIZE & (EXPLICIT_INITIAL_INDEX_SIZE - 1)), "Traits::EXPLICIT_INITIAL_INDEX_SIZE must be a power of 2 (and greater than 1)");
-		static_assert((IMPLICIT_INITIAL_INDEX_SIZE > 1) && !(IMPLICIT_INITIAL_INDEX_SIZE & (IMPLICIT_INITIAL_INDEX_SIZE - 1)), "Traits::IMPLICIT_INITIAL_INDEX_SIZE must be a power of 2 (and greater than 1)");
+		static_assert((BLOCK_SIZE > 1) && !(BLOCK_SIZE& (BLOCK_SIZE - 1)), "Traits::BLOCK_SIZE must be a power of 2 (and at least 2)");
+		static_assert((EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD > 1) && !(EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD& (EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD - 1)), "Traits::EXPLICIT_BLOCK_EMPTY_COUNTER_THRESHOLD must be a power of 2 (and greater than 1)");
+		static_assert((EXPLICIT_INITIAL_INDEX_SIZE > 1) && !(EXPLICIT_INITIAL_INDEX_SIZE& (EXPLICIT_INITIAL_INDEX_SIZE - 1)), "Traits::EXPLICIT_INITIAL_INDEX_SIZE must be a power of 2 (and greater than 1)");
+		static_assert((IMPLICIT_INITIAL_INDEX_SIZE > 1) && !(IMPLICIT_INITIAL_INDEX_SIZE& (IMPLICIT_INITIAL_INDEX_SIZE - 1)), "Traits::IMPLICIT_INITIAL_INDEX_SIZE must be a power of 2 (and greater than 1)");
 		static_assert((INITIAL_IMPLICIT_PRODUCER_HASH_SIZE == 0) || !(INITIAL_IMPLICIT_PRODUCER_HASH_SIZE & (INITIAL_IMPLICIT_PRODUCER_HASH_SIZE - 1)), "Traits::INITIAL_IMPLICIT_PRODUCER_HASH_SIZE must be a power of 2");
 		static_assert(INITIAL_IMPLICIT_PRODUCER_HASH_SIZE == 0 || INITIAL_IMPLICIT_PRODUCER_HASH_SIZE >= 1, "Traits::INITIAL_IMPLICIT_PRODUCER_HASH_SIZE must be at least 1 (or 0 to disable implicit enqueueing)");
 
@@ -3454,7 +3454,7 @@ namespace moodycamel {
 			}
 
 #ifdef MOODYCAMEL_CPP11_THREAD_LOCAL_SUPPORTED
-		void implicit_producer_thread_exited(ImplicitProducer* producer)
+		void implicit_producer_thread_exited(ImplicitProducer * producer)
 		{
 			// Remove from thread exit listeners
 			details::ThreadExitNotifier::unsubscribe(&producer->threadExitListener);
@@ -3516,7 +3516,7 @@ namespace moodycamel {
 		}
 
 		template<typename U>
-		static inline void destroy_array(U* p, size_t count)
+		static inline void destroy_array(U * p, size_t count)
 		{
 			if (p != nullptr) {
 				assert(count > 0);
@@ -3535,14 +3535,14 @@ namespace moodycamel {
 		}
 
 		template<typename U, typename A1>
-		static inline U* create(A1&& a1)
+		static inline U* create(A1 && a1)
 		{
 			auto p = (Traits::malloc)(sizeof(U));
 			return p != nullptr ? new (p) U(std::forward<A1>(a1)) : nullptr;
 		}
 
 		template<typename U>
-		static inline void destroy(U* p)
+		static inline void destroy(U * p)
 		{
 			if (p != nullptr) {
 				p->~U();
@@ -3585,7 +3585,7 @@ namespace moodycamel {
 
 
 	template<typename T, typename Traits>
-	ProducerToken::ProducerToken(ConcurrentQueue<T, Traits>& queue)
+	ProducerToken::ProducerToken(ConcurrentQueue<T, Traits> & queue)
 		: producer(queue.recycle_or_create_producer(true))
 	{
 		if (producer != nullptr) {
@@ -3594,7 +3594,7 @@ namespace moodycamel {
 	}
 
 	template<typename T, typename Traits>
-	ProducerToken::ProducerToken(BlockingConcurrentQueue<T, Traits>& queue)
+	ProducerToken::ProducerToken(BlockingConcurrentQueue<T, Traits> & queue)
 		: producer(reinterpret_cast<ConcurrentQueue<T, Traits>*>(&queue)->recycle_or_create_producer(true))
 	{
 		if (producer != nullptr) {
@@ -3603,7 +3603,7 @@ namespace moodycamel {
 	}
 
 	template<typename T, typename Traits>
-	ConsumerToken::ConsumerToken(ConcurrentQueue<T, Traits>& queue)
+	ConsumerToken::ConsumerToken(ConcurrentQueue<T, Traits> & queue)
 		: itemsConsumedFromCurrent(0), currentProducer(nullptr), desiredProducer(nullptr)
 	{
 		initialOffset = queue.nextExplicitConsumerId.fetch_add(1, std::memory_order_release);
@@ -3611,7 +3611,7 @@ namespace moodycamel {
 	}
 
 	template<typename T, typename Traits>
-	ConsumerToken::ConsumerToken(BlockingConcurrentQueue<T, Traits>& queue)
+	ConsumerToken::ConsumerToken(BlockingConcurrentQueue<T, Traits> & queue)
 		: itemsConsumedFromCurrent(0), currentProducer(nullptr), desiredProducer(nullptr)
 	{
 		initialOffset = reinterpret_cast<ConcurrentQueue<T, Traits>*>(&queue)->nextExplicitConsumerId.fetch_add(1, std::memory_order_release);
@@ -3619,23 +3619,23 @@ namespace moodycamel {
 	}
 
 	template<typename T, typename Traits>
-	inline void swap(ConcurrentQueue<T, Traits>& a, ConcurrentQueue<T, Traits>& b) MOODYCAMEL_NOEXCEPT
+	inline void swap(ConcurrentQueue<T, Traits> & a, ConcurrentQueue<T, Traits> & b) MOODYCAMEL_NOEXCEPT
 	{
 		a.swap(b);
 	}
 
-	inline void swap(ProducerToken& a, ProducerToken& b) MOODYCAMEL_NOEXCEPT
+	inline void swap(ProducerToken & a, ProducerToken & b) MOODYCAMEL_NOEXCEPT
 	{
 		a.swap(b);
 	}
 
-	inline void swap(ConsumerToken& a, ConsumerToken& b) MOODYCAMEL_NOEXCEPT
+	inline void swap(ConsumerToken & a, ConsumerToken & b) MOODYCAMEL_NOEXCEPT
 	{
 		a.swap(b);
 	}
 
 	template<typename T, typename Traits>
-	inline void swap(typename ConcurrentQueue<T, Traits>::ImplicitProducerKVP& a, typename ConcurrentQueue<T, Traits>::ImplicitProducerKVP& b) MOODYCAMEL_NOEXCEPT
+	inline void swap(typename ConcurrentQueue<T, Traits>::ImplicitProducerKVP & a, typename ConcurrentQueue<T, Traits>::ImplicitProducerKVP & b) MOODYCAMEL_NOEXCEPT
 	{
 		a.swap(b);
 	}

@@ -123,7 +123,7 @@ public:
 
 
 protected:
-	struct SScanParams
+	typedef struct SScanParams
 	{
 		SScanParams() { Reset(); };
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
@@ -144,9 +144,9 @@ protected:
 		void GetMemoryStatistics(ICrySizer * s)
 		{
 		}
-	};
+	} SScanParams;
 
-	struct SScanActions
+	typedef struct SScanActions
 	{
 		SScanActions() { Reset(); };
 		void Reset(const IItemParamsNode *params=0, bool defaultInit=true)
@@ -168,7 +168,7 @@ protected:
 			s->Add(spin_down);
 			s->Add(scan);
 		}
-	};
+	} SScanActions;
 
 	SScanParams		m_scanparams;
 	SScanActions	m_scanactions;
