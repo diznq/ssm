@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <thread>
 #include <Windows.h>
+#include <IGame.h>
 
 namespace ssm {
 
@@ -18,8 +19,7 @@ namespace ssm {
 	}
 
 	SSM::SSM() {
-		gEnv->pLog->Log("SSM::SSM");
-		Init(0);
+		Init(gEnv->pGame);
 	}
 
 	void SSM::Init(IGame* pGame) {
