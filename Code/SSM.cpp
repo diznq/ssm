@@ -1,5 +1,7 @@
+#include "StdAfx.h"
 #include "SSM.h"
 #include <algorithm>
+#include <thread>
 
 void SSM::Worker(SSM* pSSM) {
 	while (true) {
@@ -10,6 +12,25 @@ void SSM::Worker(SSM* pSSM) {
 			pSSM->finishedTasks.enqueue(task);
 		}
 	}
+}
+
+SSM::SSM() {
+	Init(0);
+}
+
+void SSM::Init(IGame* pGame) {
+	game = pGame;
+	if (initialized) return;
+	initialized = true;
+	unsigned int threads = std::thread::hardware_concurrency();
+	for (unsigned int i = 0; i < threads; i++) {
+		std::thread thr(Worker, this);
+		thr.detach();
+	}
+}
+
+SSM::~SSM() {
+
 }
 
 void SSM::OnUpdate(OnUpdateParams* params){
@@ -63,6 +84,13 @@ void SSM::OnShoot(OnShootParams* params){
 	}
 }
 
+bool SSM::ProcessEvent(const char* event, IParams* params) {
+	for (auto& cb : callbacks[event]) {
+		if (!cb.function(params)) return false;
+	}
+	return true;
+}
+
 CallbackDesc SSM::AddCallback(const char* event, const std::function<bool(IParams*)>& callback, int priority){
 	CallbackDesc desc;
 	desc.handle = callbackCounter++;
@@ -70,6 +98,7 @@ CallbackDesc SSM::AddCallback(const char* event, const std::function<bool(IParam
 	desc.priority = priority;
 	desc.type = event;
 	callbacks[event].emplace_back(desc);
+	std::sort(callbacks[event].rbegin(), callbacks[event].rend());
 	return desc;
 }
 
@@ -78,6 +107,8 @@ std::vector<CallbackDesc>& SSM::GetCallbacks(const char* event) {
 }
 
 void SSM::UpdateCallback(const CallbackDesc& desc) {
+	RemoveCallback(desc);
+	callbacks[desc.type].emplace_back(desc);
 	std::sort(callbacks[desc.type].rbegin(), callbacks[desc.type].rend());
 }
 
@@ -91,6 +122,49 @@ void SSM::RemoveCallback(const CallbackDesc& desc){
 	}
 }
 
+void SSM::ExecuteAsync(std::function<void()> fn) {
+	AddTask(new Task<int>([&fn]() -> int {
+		fn();
+		return 0;
+	}));
+}
+
+void SSM::ExecuteOnMainThread(std::function<void()> fn) {
+	AddTask(new Task<int>([]() -> int { return 0; }, [&fn](int p) -> void {
+		fn();
+	}));
+}
+
 void SSM::AddTask(ITask* task) {
 	tasks.enqueue(task);
+}
+
+bool SSM::LoadPlugin(const char* name) {
+	auto it = plugins.find(name);
+	if (it != plugins.end()) {
+		if (!UnloadPlugin(name)) return false;
+	}
+	typedef IPlugin* (__cdecl *PFNCREATEPLUGIN)(ISSM*);
+	HMODULE hLib = LoadLibrary(name);
+	if (hLib != INVALID_HANDLE_VALUE) {
+		PFNCREATEPLUGIN pfnCreatePlugin = (PFNCREATEPLUGIN)GetProcAddress(hLib, "CreatePlugin");
+		IPlugin* plugin = pfnCreatePlugin(this);
+		if (!plugin) {
+			FreeLibrary(hLib);
+			return false;
+		}
+		plugins[name] = std::make_pair(hLib, plugin);
+		plugin->OnLoad();
+		return true;
+	}
+	return false;
+}
+
+bool SSM::UnloadPlugin(const char* name) {
+	auto it = plugins.find(name);
+	if (it == plugins.end()) return false;
+	it->second.second->OnUnload();
+	bool res = FreeLibrary(it->second.first);
+	plugins.erase(it);
+	return res;
 }

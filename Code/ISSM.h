@@ -1,7 +1,6 @@
 #pragma once
-#include <platform.h>
-#include <platform_impl.h>
 #include <IGameFramework.h>
+#include <IActorSystem.h>
 #include <IGameRulesSystem.h>
 #include <IWeapon.h>
 #include <functional>
@@ -9,11 +8,21 @@
 
 struct ITask;
 struct IParams;
+struct IPlugin;
 struct CallbackDesc;
+
+struct IParams {
+
+};
+
+struct IPlugin {
+	virtual ~IPlugin() = default;
+	virtual void OnLoad() = 0;
+	virtual void OnUnload() = 0;
+};
 
 struct ISSM {
 
-	const char* eCB_OnUnload = "OnUnload";
 	const char* eCB_OnUpdate = "OnUpdate";
 	const char* eCB_OnChatMessage = "OnChatMessage";
 	const char* eCB_OnPlayerRename = "OnPlayerRename";
@@ -34,17 +43,23 @@ struct ISSM {
 	};
 	
 	struct OnPlayerRenameParams : public IParams {
-		EntityId player;
+		IActor* player;
 		std::string oldName;
 		std::string newName;
 	};
 
 	struct OnPlayerConnectParams : public IParams {
-		EntityId player;
+		IActor* player;
+		int channelId;
+		bool isReset;
 	};
 	
 	struct OnPlayerDisconnectParams : public IParams {
-		EntityId player;
+		IActor* player;
+		int channelId;
+		EDisconnectionCause cause;
+		std::string desc;
+		bool keepClient;
 	};
 	
 	struct OnShootParams : public IParams {
@@ -54,10 +69,12 @@ struct ISSM {
 	};
 	
 	struct OnCheatDetectedParams : public IParams {
-		EntityId player;
+		IActor* player;
 		std::string cheat;
 	};
 
+	virtual ~ISSM() = default;
+	virtual void Init(IGame *pGame) = 0;
 	virtual void OnUpdate(OnUpdateParams* params) = 0;
 	virtual bool OnChatMessage(OnChatMessageParams* params) = 0;
 	virtual bool OnPlayerRename(OnPlayerRenameParams* params) = 0;
@@ -65,11 +82,16 @@ struct ISSM {
 	virtual void OnPlayerDisconnect(OnPlayerDisconnectParams* params) = 0;
 	virtual void OnCheatDetected(OnCheatDetectedParams* params) = 0;
 	virtual void OnShoot(OnShootParams* params) = 0;
+	virtual bool ProcessEvent(const char* event, IParams* params) = 0;
 	virtual CallbackDesc AddCallback(const char* event, const std::function<bool(IParams*)>& callback, int priority=0) = 0;
 	virtual std::vector<CallbackDesc>& GetCallbacks(const char* event) = 0;
 	virtual void UpdateCallback(const CallbackDesc& desc) = 0;
 	virtual void RemoveCallback(const CallbackDesc& desc) = 0;
 	virtual void AddTask(ITask* executable) = 0;
+	virtual void ExecuteOnMainThread(std::function<void()> fn) = 0;
+	virtual void ExecuteAsync(std::function<void()> fn) = 0;
+	virtual bool LoadPlugin(const char* name);
+	virtual bool UnloadPlugin(const char* name);
 };
 
 struct ITask {
@@ -100,10 +122,6 @@ public:
 		if(cb)
 			cb(result);
 	}
-};
-
-struct IParams {
-
 };
 
 struct CallbackDesc {

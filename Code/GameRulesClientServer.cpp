@@ -33,8 +33,11 @@ History:
 #include "IWorldQuery.h"
 #include "ShotValidator.h"
 
+#include "SSM.h"
+
 #include <StlUtils.h>
 
+#undef PlaySound
 
 //------------------------------------------------------------------------
 void CGameRules::ValidateShot(EntityId playerId, EntityId weaponId, uint16 seq, uint8 seqr)
@@ -742,9 +745,20 @@ void CGameRules::ProcessExplosionMaterialFX(const ExplosionInfo &explosionInfo)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, SvRequestRename)
 {
+
 	CActor *pActor = GetActorByEntityId(params.entityId);
 	if (!pActor)
 		return true;
+	
+	CActor* pChnActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
+
+	if (pChnActor != pActor) {
+		ISSM::OnCheatDetectedParams event;
+		event.player = pChnActor;
+		event.cheat = "rename spoof";
+		SSM::GetInstance()->OnCheatDetected(&event);
+		return true;
+	}
 
 	RenamePlayer(pActor, params.name.c_str());
 
@@ -781,6 +795,17 @@ IMPLEMENT_RMI(CGameRules, ClRenameEntity)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, SvRequestChatMessage)
 {
+	CActor* pActor = GetActorByEntityId(params.sourceId);
+	CActor* pChnActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
+
+	if (pChnActor != pActor) {
+		ISSM::OnCheatDetectedParams event;
+		event.player = pChnActor;
+		event.cheat = "chat spoof";
+		SSM::GetInstance()->OnCheatDetected(&event);
+		return true;
+	}
+
 	SendChatMessage((EChatMessageType)params.type, params.sourceId, params.targetId, params.msg.c_str());
 
 	return true;
@@ -807,6 +832,16 @@ IMPLEMENT_RMI(CGameRules, ClForbiddenAreaWarning)
 
 IMPLEMENT_RMI(CGameRules, SvRequestRadioMessage)
 {
+	CActor* pActor = GetActorByEntityId(params.sourceId);
+	CActor* pChnActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
+
+	if (pChnActor != pActor) {
+		ISSM::OnCheatDetectedParams event;
+		event.player = pChnActor;
+		event.cheat = "radio spoof";
+		SSM::GetInstance()->OnCheatDetected(&event);
+		return true;
+	}
 	SendRadioMessage(params.sourceId,params.msg);
 
 	return true;
@@ -827,6 +862,16 @@ IMPLEMENT_RMI(CGameRules, SvRequestChangeTeam)
 	if (!pActor)
 		return true;
 
+	CActor* pChnActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
+
+	if (pChnActor != pActor) {
+		ISSM::OnCheatDetectedParams event;
+		event.player = pChnActor;
+		event.cheat = "team change spoof";
+		SSM::GetInstance()->OnCheatDetected(&event);
+		return true;
+	}
+
 	ChangeTeam(pActor, params.teamId);
 
 	return true;
@@ -838,6 +883,16 @@ IMPLEMENT_RMI(CGameRules, SvRequestSpectatorMode)
 	CActor *pActor = GetActorByEntityId(params.entityId);
 	if (!pActor)
 		return true;
+
+	CActor* pChnActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
+
+	if (pChnActor != pActor) {
+		ISSM::OnCheatDetectedParams event;
+		event.player = pChnActor;
+		event.cheat = "spectator spoof";
+		SSM::GetInstance()->OnCheatDetected(&event);
+		return true;
+	}
 
 	ChangeSpectatorMode(pActor, params.mode, params.targetId, params.resetAll);
 
@@ -923,6 +978,16 @@ IMPLEMENT_RMI(CGameRules, ClTextMessage)
 //------------------------------------------------------------------------
 IMPLEMENT_RMI(CGameRules, SvRequestSimpleHit)
 {
+	CActor* pActor = GetActorByEntityId(params.shooterId);
+	CActor* pChnActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
+
+	if (pChnActor != pActor) {
+		ISSM::OnCheatDetectedParams event;
+		event.player = pChnActor;
+		event.cheat = "simple hit spoof";
+		SSM::GetInstance()->OnCheatDetected(&event);
+		return true;
+	}
 	ServerSimpleHit(params);
 
 	return true;
@@ -933,6 +998,17 @@ IMPLEMENT_RMI(CGameRules, SvRequestHit)
 {
 	HitInfo info(params);
 	info.remote=true;
+
+	CActor* pActor = GetActorByEntityId(params.shooterId);
+	CActor* pChnActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
+
+	if (pChnActor != pActor) {
+		ISSM::OnCheatDetectedParams event;
+		event.player = pChnActor;
+		event.cheat = "hit spoof";
+		SSM::GetInstance()->OnCheatDetected(&event);
+		return true;
+	}
 
 	ServerHit(info);
 

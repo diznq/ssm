@@ -57,6 +57,8 @@
 #include "ISaveGame.h"
 #include "ILoadGame.h"
 
+#include "SSM.h"
+
 #define GAME_DEBUG_MEM  // debug memory usage
 #undef  GAME_DEBUG_MEM
 
@@ -116,6 +118,7 @@ CGame::CGame()
 	m_pMultiplayerAM = 0;
 
 	GetISystem()->SetIGame( this );
+	SSM::GetInstance()->Init(this);
 }
 
 CGame::~CGame()
@@ -392,9 +395,12 @@ bool CGame::CompleteInit()
 
 int CGame::Update(bool haveFocus, unsigned int updateFlags)
 {
-	bool bRun = m_pFramework->PreUpdate( true, updateFlags );
 	float frameTime = gEnv->pTimer->GetFrameTime();
-
+	ISSM::OnUpdateParams event;
+	event.deltaTime = frameTime;
+	SSM::GetInstance()->OnUpdate(&event);
+	bool bRun = m_pFramework->PreUpdate( true, updateFlags );
+	
 	if (m_pFramework->IsGamePaused() == false)
 	{
 		m_pWeaponSystem->Update(frameTime);

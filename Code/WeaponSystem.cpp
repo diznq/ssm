@@ -539,12 +539,11 @@ bool CWeaponSystem::ScanXML(XmlNodeRef &root, const char *xmlFile)
 
 	if (!configName || !configName[0])
 	{
-		if (desc.params)
-			delete desc.params;
+		if (desc.params) delete desc.params;
 		desc.params=pAmmoParams;
+	} else {
+		desc.configurations[configName] = pAmmoParams;
 	}
-	else
-		desc.configurations.insert(std::make_pair<string, const SAmmoParams*>(configName, pAmmoParams));
 
 	return true;
 }

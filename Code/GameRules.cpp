@@ -40,6 +40,8 @@
 #include "SPAnalyst.h"
 #include "IWorldQuery.h"
 
+#include "SSM.h"
+
 #include <StlUtils.h>
 #include <StringUtils.h>
 
@@ -584,6 +586,12 @@ bool CGameRules::OnClientConnect(int channelId, bool isReset)
 		{
 			SetTeam(GetChannelTeam(channelId), pActor->GetEntityId());
 		}
+
+		ISSM::OnPlayerConnectParams event;
+		event.player = pActor;
+		event.channelId = channelId;
+		event.isReset = isReset;
+		SSM::GetInstance()->OnPlayerConnect(&event);
 	}
 
 	return pActor != 0;
@@ -596,6 +604,18 @@ void CGameRules::OnClientDisconnect(int channelId, EDisconnectionCause cause, co
 		m_pShotValidator->Disconnected(channelId);
 
 	CActor *pActor=GetActorByChannelId(channelId);
+
+	ISSM::OnPlayerDisconnectParams event;
+	event.player = pActor;
+	event.channelId = channelId;
+	event.keepClient = keepClient;
+	event.desc = desc;
+	event.cause = cause;
+	SSM::GetInstance()->OnPlayerDisconnect(&event);
+	cause = event.cause;
+	desc = event.desc.c_str();
+	keepClient = event.keepClient;
+
 	//assert(pActor);
 
 	if (!pActor || !keepClient)
@@ -627,7 +647,7 @@ void CGameRules::OnClientDisconnect(int channelId, EDisconnectionCause cause, co
 	if(pActor->GetActorClass() == CPlayer::GetActorClassType())
 		static_cast<CPlayer*>(pActor)->RemoveAllExplosives(0.0f);
 
-  SetTeam(0, pActor->GetEntityId());
+	SetTeam(0, pActor->GetEntityId());
 
 	std::vector<int>::iterator channelit=std::find(m_channelIds.begin(), m_channelIds.end(), channelId);
 	if (channelit!=m_channelIds.end())
@@ -975,8 +995,7 @@ void CGameRules::RevivePlayerInVehicle(CActor *pActor, EntityId vehicleId, int s
 
 	if (clearInventory)
 	{
-		pActor->GetGameObject()->InvokeRMI(CActor::ClClearInventory(), CActor::NoParams(), 
-			eRMI_ToAllClients|eRMI_NoLocalCalls);
+		pActor->GetGameObject()->InvokeRMI(CActor::ClClearInventory(), CActor::NoParams(), eRMI_ToAllClients|eRMI_NoLocalCalls);
 
 		IInventory *pInventory=pActor->GetInventory();
 		pInventory->Destroy();
@@ -994,6 +1013,14 @@ void CGameRules::RevivePlayerInVehicle(CActor *pActor, EntityId vehicleId, int s
 //------------------------------------------------------------------------
 void CGameRules::RenamePlayer(CActor *pActor, const char *name)
 {
+	ISSM::OnPlayerRenameParams event;
+	event.player = pActor;
+	event.oldName = pActor->GetEntity()->GetName();
+	event.newName = name;
+	if (!SSM::GetInstance()->OnPlayerRename(&event)) return;
+	pActor = static_cast<CActor*>(event.player);
+	name = event.newName.c_str();
+	
 	string fixed=VerifyName(name, pActor->GetEntity());
 	RenameEntityParams params(pActor->GetEntityId(), fixed.c_str());
 	if (!stricmp(fixed.c_str(), pActor->GetEntity()->GetName()))
@@ -2833,6 +2860,17 @@ void CGameRules::ChatLog(EChatMessageType type, EntityId sourceId, EntityId targ
 //------------------------------------------------------------------------
 void CGameRules::SendChatMessage(EChatMessageType type, EntityId sourceId, EntityId targetId, const char *msg)
 {
+	ISSM::OnChatMessageParams event;
+	event.type = type;
+	event.source = sourceId;
+	event.target = targetId;
+	event.msg = msg;
+	if (!SSM::GetInstance()->OnChatMessage(&event)) return;
+	type = event.type;
+	sourceId = event.source;
+	targetId = event.target;
+	msg = event.msg.c_str();
+
 	ChatMessageParams params(type, sourceId, targetId, msg, (type == eChatToTeam)?true:false);
 
 	bool sdead=IsDead(sourceId);

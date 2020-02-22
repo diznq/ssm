@@ -38,6 +38,10 @@
 
 #include "IFacialAnimation.h"
 
+#include "SSM.h"
+
+#undef PlaySound
+
 IItemSystem *CActor::m_pItemSystem=0;
 IGameFramework	*CActor::m_pGameFramework=0;
 IGameplayRecorder	*CActor::m_pGameplayRecorder=0;
@@ -3166,6 +3170,16 @@ IMPLEMENT_RMI(CActor, SvRequestDropItem)
 	{
 		GameWarning("[gamenet] Failed to drop item. Item not found!");
 		return false;
+	}
+
+	CActor* pChnActor = static_cast<CActor*>(m_pGameFramework->GetIActorSystem()->GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel)));
+
+	if (pChnActor != this) {
+		ISSM::OnCheatDetectedParams event;
+		event.player = pChnActor;
+		event.cheat = "drop spoof";
+		SSM::GetInstance()->OnCheatDetected(&event);
+		return true;
 	}
 
 	//CryLogAlways("%s::SvRequestDropItem(%s)", GetEntity()->GetName(), pItem->GetEntity()->GetName());
