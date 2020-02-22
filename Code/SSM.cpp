@@ -18,6 +18,7 @@ namespace ssm {
 	}
 
 	SSM::SSM() {
+		gEnv->pLog->Log("SSM::SSM");
 		Init(0);
 	}
 

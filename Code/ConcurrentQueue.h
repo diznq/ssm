@@ -335,8 +335,10 @@ namespace moodycamel {
 #if defined(malloc) || defined(free)
 	// Gah, this is 2015, stop defining macros that break standard code already!
 	// Work around malloc/free being special macros:
-		static inline void* WORKAROUND_malloc(size_t size) { return malloc(size); }
-		static inline void WORKAROUND_free(void* ptr) { return free(ptr); }
+		static inline void* WORKAROUND_malloc(size_t size) {
+			return new char[size];
+		}
+		static inline void WORKAROUND_free(void* ptr) { char* cptr = (char*)ptr;  delete[] cptr; }
 		static inline void* (malloc)(size_t size) { return WORKAROUND_malloc(size); }
 		static inline void (free)(void* ptr) { return WORKAROUND_free(ptr); }
 #else

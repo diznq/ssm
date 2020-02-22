@@ -659,6 +659,12 @@
     <ClCompile Include="SSMLua.cpp">
       <Filter>SSM</Filter>
     </ClCompile>
+    <ClCompile Include="SSMCrypto.cpp">
+      <Filter>SSM</Filter>
+    </ClCompile>
+    <ClCompile Include="SSMUtils.cpp">
+      <Filter>SSM</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -1158,6 +1164,12 @@
       <Filter>SSM\Libs</Filter>
     </ClInclude>
     <ClInclude Include="SSMLua.h">
+      <Filter>SSM</Filter>
+    </ClInclude>
+    <ClInclude Include="SSMUtils.h">
+      <Filter>SSM</Filter>
+    </ClInclude>
+    <ClInclude Include="SSMCrypto.h">
       <Filter>SSM</Filter>
     </ClInclude>
   </ItemGroup>

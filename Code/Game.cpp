@@ -58,7 +58,9 @@
 #include "ILoadGame.h"
 
 #include "SSM.h"
+#include "SSMLua.h"
 using ssm::SSM;
+using ssm::SSMLua;
 
 #define GAME_DEBUG_MEM  // debug memory usage
 #undef  GAME_DEBUG_MEM
@@ -119,7 +121,6 @@ CGame::CGame()
 	m_pMultiplayerAM = 0;
 
 	GetISystem()->SetIGame( this );
-	SSM::GetInstance()->Init(this);
 }
 
 CGame::~CGame()
@@ -364,7 +365,12 @@ bool CGame::Init(IGameFramework *pFramework)
 		m_pSoundMoods = new CSoundMoods();
 	}
 
-  m_pFramework->RegisterListener(this,"Game", FRAMEWORKLISTENERPRIORITY_GAME);
+	m_pFramework->RegisterListener(this,"Game", FRAMEWORKLISTENERPRIORITY_GAME);
+
+
+	auto pSSM = SSM::GetInstance();
+	pSSM->Init(this);
+	pSSM->LoadPlugin("SSMLua", new SSMLua(gEnv->pSystem, gEnv->pScriptSystem));
 
 #ifdef GAME_DEBUG_MEM
 	DumpMemInfo("CGame::Init end");

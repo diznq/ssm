@@ -383,7 +383,9 @@
     <ClCompile Include="SoundMoods.cpp" />
     <ClCompile Include="SPAnalyst.cpp" />
     <ClCompile Include="SSM.cpp" />
+    <ClCompile Include="SSMCrypto.cpp" />
     <ClCompile Include="SSMLua.cpp" />
+    <ClCompile Include="SSMUtils.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -561,7 +563,9 @@
     <ClInclude Include="SoundMoods.h" />
     <ClInclude Include="SPAnalyst.h" />
     <ClInclude Include="SSM.h" />
+    <ClInclude Include="SSMCrypto.h" />
     <ClInclude Include="SSMLua.h" />
+    <ClInclude Include="SSMUtils.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="SynchedStorage.h" />
     <ClInclude Include="TacBullet.h" />
