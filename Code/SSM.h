@@ -3,7 +3,7 @@
 #include "BlockingConcurrentQueue.h"
 
 class SSM : public ISSM {
-	std::vector<ISSM::CallbackDesc> callbacks[Callback::eCB_Length];
+	std::map<std::string, std::vector<CallbackDesc>> callbacks;
 	moodycamel::BlockingConcurrentQueue<ITask*> tasks;
 	moodycamel::ConcurrentQueue<ITask*> finishedTasks;
 	static void Worker(SSM* pSSM);
@@ -16,8 +16,9 @@ public:
 	virtual void OnPlayerDisconnect(OnPlayerDisconnectParams* params);
 	virtual void OnCheatDetected(OnCheatDetectedParams* params);
 	virtual void OnShoot(OnShootParams* params);
-	virtual ISSM::CallbackDesc AddCallback(Callback event, const std::function<bool(IParams*)>& callback, int priority = 0);
-	virtual void UpdateCallback(const ISSM::CallbackDesc& desc);
-	virtual void RemoveCallback(const ISSM::CallbackDesc& desc);
+	virtual CallbackDesc AddCallback(const char* event, const std::function<bool(IParams*)>& callback, int priority = 0);
+	virtual std::vector<CallbackDesc>& GetCallbacks(const char* event);
+	virtual void UpdateCallback(const CallbackDesc& desc);
+	virtual void RemoveCallback(const CallbackDesc& desc);
 	virtual void AddTask(ITask* executable);
 };

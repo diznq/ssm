@@ -8,39 +8,19 @@
 #include <atomic>
 
 struct ITask;
+struct IParams;
+struct CallbackDesc;
 
 struct ISSM {
 
-	enum Callback {
-		eCB_OnUnload,
-		eCB_OnUpdate,
-		eCB_OnChatMessage,
-		eCB_OnPlayerRename,
-		eCB_OnPlayerConnect,
-		eCB_OnPlayerDisconnect,
-		eCB_OnCheatDetected,
-		eCB_OnShoot,
-		eCB_Length
-	};
-	
-	struct IParams {
-
-	};
-
-	struct CallbackDesc {
-		int handle = 0;
-		int priority = 0;
-		Callback type;
-		std::function<bool(IParams*)> function;
-
-		bool operator<(const CallbackDesc& desc) const {
-			return priority < desc.priority;
-		}
-
-		bool operator==(const CallbackDesc& desc) const {
-			return handle == desc.handle;
-		}
-	};
+	const char* eCB_OnUnload = "OnUnload";
+	const char* eCB_OnUpdate = "OnUpdate";
+	const char* eCB_OnChatMessage = "OnChatMessage";
+	const char* eCB_OnPlayerRename = "OnPlayerRename";
+	const char* eCB_OnPlayerConnect = "OnPlayerConnect";
+	const char* eCB_OnPlayerDisconnect = "OnPlayerDisconnect";
+	const char* eCB_OnCheatDetected = "OnCheatDetected";
+	const char* eCB_OnShoot = "OnShoot";
 
 	struct OnUpdateParams : public IParams {
 		float deltaTime;
@@ -85,7 +65,8 @@ struct ISSM {
 	virtual void OnPlayerDisconnect(OnPlayerDisconnectParams* params) = 0;
 	virtual void OnCheatDetected(OnCheatDetectedParams* params) = 0;
 	virtual void OnShoot(OnShootParams* params) = 0;
-	virtual CallbackDesc AddCallback(Callback event, const std::function<bool(IParams*)>& callback, int priority=0) = 0;
+	virtual CallbackDesc AddCallback(const char* event, const std::function<bool(IParams*)>& callback, int priority=0) = 0;
+	virtual std::vector<CallbackDesc>& GetCallbacks(const char* event) = 0;
 	virtual void UpdateCallback(const CallbackDesc& desc) = 0;
 	virtual void RemoveCallback(const CallbackDesc& desc) = 0;
 	virtual void AddTask(ITask* executable) = 0;
@@ -116,6 +97,26 @@ public:
 		return finished.load();
 	}
 	virtual void finish() {
-		cb(result);
+		if(cb)
+			cb(result);
+	}
+};
+
+struct IParams {
+
+};
+
+struct CallbackDesc {
+	int handle = 0;
+	int priority = 0;
+	std::string type;
+	std::function<bool(IParams*)> function;
+
+	bool operator<(const CallbackDesc& desc) const {
+		return priority < desc.priority;
+	}
+
+	bool operator==(const CallbackDesc& desc) const {
+		return handle == desc.handle;
 	}
 };
