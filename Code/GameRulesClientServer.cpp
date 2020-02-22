@@ -35,6 +35,8 @@ History:
 
 #include "SSM.h"
 
+using ssm::SSM;
+
 #include <StlUtils.h>
 
 #undef PlaySound
@@ -753,7 +755,7 @@ IMPLEMENT_RMI(CGameRules, SvRequestRename)
 	CActor* pChnActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
 
 	if (pChnActor != pActor) {
-		ISSM::OnCheatDetectedParams event;
+		ssm::OnCheatDetectedParams event;
 		event.player = pChnActor;
 		event.cheat = "rename spoof";
 		SSM::GetInstance()->OnCheatDetected(&event);
@@ -799,7 +801,7 @@ IMPLEMENT_RMI(CGameRules, SvRequestChatMessage)
 	CActor* pChnActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
 
 	if (pChnActor != pActor) {
-		ISSM::OnCheatDetectedParams event;
+		ssm::OnCheatDetectedParams event;
 		event.player = pChnActor;
 		event.cheat = "chat spoof";
 		SSM::GetInstance()->OnCheatDetected(&event);
@@ -836,7 +838,7 @@ IMPLEMENT_RMI(CGameRules, SvRequestRadioMessage)
 	CActor* pChnActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
 
 	if (pChnActor != pActor) {
-		ISSM::OnCheatDetectedParams event;
+		ssm::OnCheatDetectedParams event;
 		event.player = pChnActor;
 		event.cheat = "radio spoof";
 		SSM::GetInstance()->OnCheatDetected(&event);
@@ -865,7 +867,7 @@ IMPLEMENT_RMI(CGameRules, SvRequestChangeTeam)
 	CActor* pChnActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
 
 	if (pChnActor != pActor) {
-		ISSM::OnCheatDetectedParams event;
+		ssm::OnCheatDetectedParams event;
 		event.player = pChnActor;
 		event.cheat = "team change spoof";
 		SSM::GetInstance()->OnCheatDetected(&event);
@@ -887,7 +889,7 @@ IMPLEMENT_RMI(CGameRules, SvRequestSpectatorMode)
 	CActor* pChnActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
 
 	if (pChnActor != pActor) {
-		ISSM::OnCheatDetectedParams event;
+		ssm::OnCheatDetectedParams event;
 		event.player = pChnActor;
 		event.cheat = "spectator spoof";
 		SSM::GetInstance()->OnCheatDetected(&event);
@@ -982,7 +984,7 @@ IMPLEMENT_RMI(CGameRules, SvRequestSimpleHit)
 	CActor* pChnActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
 
 	if (pChnActor != pActor) {
-		ISSM::OnCheatDetectedParams event;
+		ssm::OnCheatDetectedParams event;
 		event.player = pChnActor;
 		event.cheat = "simple hit spoof";
 		SSM::GetInstance()->OnCheatDetected(&event);
@@ -1003,7 +1005,7 @@ IMPLEMENT_RMI(CGameRules, SvRequestHit)
 	CActor* pChnActor = GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel));
 
 	if (pChnActor != pActor) {
-		ISSM::OnCheatDetectedParams event;
+		ssm::OnCheatDetectedParams event;
 		event.player = pChnActor;
 		event.cheat = "hit spoof";
 		SSM::GetInstance()->OnCheatDetected(&event);

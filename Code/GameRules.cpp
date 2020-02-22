@@ -42,6 +42,8 @@
 
 #include "SSM.h"
 
+using ssm::SSM;
+
 #include <StlUtils.h>
 #include <StringUtils.h>
 
@@ -587,7 +589,7 @@ bool CGameRules::OnClientConnect(int channelId, bool isReset)
 			SetTeam(GetChannelTeam(channelId), pActor->GetEntityId());
 		}
 
-		ISSM::OnPlayerConnectParams event;
+		ssm::OnPlayerConnectParams event;
 		event.player = pActor;
 		event.channelId = channelId;
 		event.isReset = isReset;
@@ -605,7 +607,7 @@ void CGameRules::OnClientDisconnect(int channelId, EDisconnectionCause cause, co
 
 	CActor *pActor=GetActorByChannelId(channelId);
 
-	ISSM::OnPlayerDisconnectParams event;
+	ssm::OnPlayerDisconnectParams event;
 	event.player = pActor;
 	event.channelId = channelId;
 	event.keepClient = keepClient;
@@ -1013,7 +1015,7 @@ void CGameRules::RevivePlayerInVehicle(CActor *pActor, EntityId vehicleId, int s
 //------------------------------------------------------------------------
 void CGameRules::RenamePlayer(CActor *pActor, const char *name)
 {
-	ISSM::OnPlayerRenameParams event;
+	ssm::OnPlayerRenameParams event;
 	event.player = pActor;
 	event.oldName = pActor->GetEntity()->GetName();
 	event.newName = name;
@@ -2860,7 +2862,7 @@ void CGameRules::ChatLog(EChatMessageType type, EntityId sourceId, EntityId targ
 //------------------------------------------------------------------------
 void CGameRules::SendChatMessage(EChatMessageType type, EntityId sourceId, EntityId targetId, const char *msg)
 {
-	ISSM::OnChatMessageParams event;
+	ssm::OnChatMessageParams event;
 	event.type = type;
 	event.source = sourceId;
 	event.target = targetId;

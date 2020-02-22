@@ -656,6 +656,9 @@
     <ClCompile Include="SSM.cpp">
       <Filter>SSM</Filter>
     </ClCompile>
+    <ClCompile Include="SSMLua.cpp">
+      <Filter>SSM</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -1153,6 +1156,9 @@
     </ClInclude>
     <ClInclude Include="ConcurrentQueue.h">
       <Filter>SSM\Libs</Filter>
+    </ClInclude>
+    <ClInclude Include="SSMLua.h">
+      <Filter>SSM</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

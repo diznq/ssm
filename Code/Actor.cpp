@@ -40,6 +40,8 @@
 
 #include "SSM.h"
 
+using ssm::SSM;
+
 #undef PlaySound
 
 IItemSystem *CActor::m_pItemSystem=0;
@@ -3175,7 +3177,7 @@ IMPLEMENT_RMI(CActor, SvRequestDropItem)
 	CActor* pChnActor = static_cast<CActor*>(m_pGameFramework->GetIActorSystem()->GetActorByChannelId(m_pGameFramework->GetGameChannelId(pNetChannel)));
 
 	if (pChnActor != this) {
-		ISSM::OnCheatDetectedParams event;
+		ssm::OnCheatDetectedParams event;
 		event.player = pChnActor;
 		event.cheat = "drop spoof";
 		SSM::GetInstance()->OnCheatDetected(&event);

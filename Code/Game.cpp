@@ -58,6 +58,7 @@
 #include "ILoadGame.h"
 
 #include "SSM.h"
+using ssm::SSM;
 
 #define GAME_DEBUG_MEM  // debug memory usage
 #undef  GAME_DEBUG_MEM
@@ -396,7 +397,7 @@ bool CGame::CompleteInit()
 int CGame::Update(bool haveFocus, unsigned int updateFlags)
 {
 	float frameTime = gEnv->pTimer->GetFrameTime();
-	ISSM::OnUpdateParams event;
+	ssm::OnUpdateParams event;
 	event.deltaTime = frameTime;
 	SSM::GetInstance()->OnUpdate(&event);
 	bool bRun = m_pFramework->PreUpdate( true, updateFlags );

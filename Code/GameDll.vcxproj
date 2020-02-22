@@ -178,6 +178,7 @@
       <WarningLevel>Level2</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <OutputFile>$(SolutionDir)..\..\SafeWriting\Bin32\SafeWriting.dll</OutputFile>
@@ -382,6 +383,7 @@
     <ClCompile Include="SoundMoods.cpp" />
     <ClCompile Include="SPAnalyst.cpp" />
     <ClCompile Include="SSM.cpp" />
+    <ClCompile Include="SSMLua.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -559,6 +561,7 @@
     <ClInclude Include="SoundMoods.h" />
     <ClInclude Include="SPAnalyst.h" />
     <ClInclude Include="SSM.h" />
+    <ClInclude Include="SSMLua.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="SynchedStorage.h" />
     <ClInclude Include="TacBullet.h" />
