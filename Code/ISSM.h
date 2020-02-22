@@ -91,8 +91,8 @@ struct ISSM {
 	virtual void ExecuteOnMainThread(std::function<void()> fn) = 0;
 	virtual void ExecuteAsync(std::function<void()> fn) = 0;
 	virtual bool LoadPlugin(const char* name, IPlugin* plugin=0);
-	virtual bool UnloadPlugin(const char* name);
-	virtual bool UnloadPlugin(IPlugin* plugin);
+	virtual bool UnloadPlugin(const char* name) = 0;
+	virtual bool UnloadPlugin(IPlugin* plugin) = 0;
 };
 
 struct ITask {
