@@ -139,10 +139,19 @@ void SSM::AddTask(ITask* task) {
 	tasks.enqueue(task);
 }
 
-bool SSM::LoadPlugin(const char* name) {
+bool SSM::LoadPlugin(const char* name, IPlugin* pPlugin) {
 	auto it = plugins.find(name);
 	if (it != plugins.end()) {
-		if (!UnloadPlugin(name)) return false;
+		if (pPlugin) {
+			if (!UnloadPlugin(pPlugin)) return false;
+		} else {
+			if (!UnloadPlugin(name)) return false;
+		}
+	}
+	if (pPlugin) {
+		plugins[name] = std::make_pair((HMODULE)INVALID_HANDLE_VALUE, pPlugin);
+		pPlugin->OnLoad();
+		return true;
 	}
 	typedef IPlugin* (__cdecl *PFNCREATEPLUGIN)(ISSM*);
 	HMODULE hLib = LoadLibrary(name);
@@ -164,7 +173,19 @@ bool SSM::UnloadPlugin(const char* name) {
 	auto it = plugins.find(name);
 	if (it == plugins.end()) return false;
 	it->second.second->OnUnload();
-	bool res = FreeLibrary(it->second.first);
-	plugins.erase(it);
-	return res;
+	if (it->second.first != INVALID_HANDLE_VALUE) {
+		bool res = FreeLibrary(it->second.first);
+		plugins.erase(it);
+		return res;
+	}
+	return true;
+}
+
+bool SSM::UnloadPlugin(IPlugin* plugin) {
+	for (auto& it : plugins) {
+		if (it.second.second == plugin) {
+			return UnloadPlugin(it.first.c_str());
+		}
+	}
+	return false;
 }
