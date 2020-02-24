@@ -44,12 +44,14 @@ namespace ssm {
 
 	struct OnPlayerConnectParams : public IParams {
 		IActor* player;
+		INetChannel* channel;
 		int channelId;
 		bool isReset;
 	};
 
 	struct OnPlayerDisconnectParams : public IParams {
 		IActor* player;
+		INetChannel* channel;
 		int channelId;
 		EDisconnectionCause cause;
 		std::string desc;

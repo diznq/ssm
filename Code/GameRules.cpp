@@ -592,6 +592,7 @@ bool CGameRules::OnClientConnect(int channelId, bool isReset)
 		ssm::OnPlayerConnectParams event;
 		event.player = pActor;
 		event.channelId = channelId;
+		event.channel = m_pGameFramework->GetNetChannel(channelId);
 		event.isReset = isReset;
 		SSM::GetInstance()->OnPlayerConnect(&event);
 	}
@@ -610,6 +611,7 @@ void CGameRules::OnClientDisconnect(int channelId, EDisconnectionCause cause, co
 	ssm::OnPlayerDisconnectParams event;
 	event.player = pActor;
 	event.channelId = channelId;
+	event.channel = m_pGameFramework->GetNetChannel(channelId);
 	event.keepClient = keepClient;
 	event.desc = desc;
 	event.cause = cause;

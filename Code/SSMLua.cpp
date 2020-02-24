@@ -86,6 +86,26 @@ namespace ssm {
 			LoadScripts();
 			return true;
 		}));
+
+		bindings.emplace_back(pSSM->AddCallback(ssm::eCB_OnPlayerConnect, [&pSSM, this](ssm::IParams* params) -> bool {
+			ssm::OnPlayerConnectParams* event = static_cast<ssm::OnPlayerConnectParams*>(params);
+			IScriptSystem* pSS = gEnv->pScriptSystem;
+			ScriptAnyValue g_gameRules;
+			if (pSS->BeginCall("g_gameRules", "GatherClientData") && pSS->GetGlobalAny("g_gameRules", g_gameRules)) {
+				char profileId[16];
+				char ip[32];
+				int n_ip = 0;
+				if(event->channel)
+					n_ip = *(int*)(((const char*)event->channel) + 0x78);
+				sprintf(ip, "%d.%d.%d.%d", (n_ip >> 24) & 255, (n_ip >> 16) & 255, (n_ip >> 8) & 255, (n_ip & 255));
+				itoa(event->channel ? event->channel->GetProfileId() : 0, profileId, 16);
+				pSS->PushFuncParam(event->channelId);
+				pSS->PushFuncParam(event->channel ? event->channel->GetName() : "<unrecognized>");
+				pSS->PushFuncParam(profileId);
+				pSS->PushFuncParam(ip);
+			}
+			return true;
+		}));
 	}
 
 	void SSMLua::OnUnload() {
