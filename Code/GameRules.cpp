@@ -562,10 +562,10 @@ bool CGameRules::OnClientConnect(int channelId, bool isReset)
 				playerName=VerifyName(playerName);
 		}
 
-    if(!playerName.empty())
-			CallScript(m_serverStateScript, "OnClientConnect", channelId, isReset, playerName.c_str());
-    else
-			CallScript(m_serverStateScript, "OnClientConnect", channelId, isReset);
+		if(!playerName.empty())
+				CallScript(m_serverStateScript, "OnClientConnect", channelId, isReset, playerName.c_str());
+		else
+				CallScript(m_serverStateScript, "OnClientConnect", channelId, isReset);
 	}
 	else
 	{
@@ -573,6 +573,14 @@ bool CGameRules::OnClientConnect(int channelId, bool isReset)
 	}
 
 	CActor *pActor=GetActorByChannelId(channelId);
+
+	ssm::OnPlayerConnectParams event;
+	event.player = pActor;
+	event.channelId = channelId;
+	event.channel = m_pGameFramework->GetNetChannel(channelId);
+	event.isReset = isReset;
+	SSM::GetInstance()->OnPlayerConnect(&event);
+
 	if (pActor)
 	{
 		//we need to pass team somehow so it will be reported correctly
@@ -588,13 +596,6 @@ bool CGameRules::OnClientConnect(int channelId, bool isReset)
 		{
 			SetTeam(GetChannelTeam(channelId), pActor->GetEntityId());
 		}
-
-		ssm::OnPlayerConnectParams event;
-		event.player = pActor;
-		event.channelId = channelId;
-		event.channel = m_pGameFramework->GetNetChannel(channelId);
-		event.isReset = isReset;
-		SSM::GetInstance()->OnPlayerConnect(&event);
 	}
 
 	return pActor != 0;

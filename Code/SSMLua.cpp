@@ -99,10 +99,12 @@ namespace ssm {
 					n_ip = *(int*)(((const char*)event->channel) + 0x78);
 				sprintf(ip, "%d.%d.%d.%d", (n_ip >> 24) & 255, (n_ip >> 16) & 255, (n_ip >> 8) & 255, (n_ip & 255));
 				itoa(event->channel ? event->channel->GetProfileId() : 0, profileId, 16);
+				pSS->PushFuncParam(g_gameRules);
 				pSS->PushFuncParam(event->channelId);
 				pSS->PushFuncParam(event->channel ? event->channel->GetName() : "<unrecognized>");
 				pSS->PushFuncParam(profileId);
 				pSS->PushFuncParam(ip);
+				pSS->EndCall();
 			}
 			return true;
 		}));

@@ -134,13 +134,13 @@ namespace ssm {
 		AddTask(new Task<int>([&fn]() -> int {
 			fn();
 			return 0;
-			}));
+		}));
 	}
 
 	void SSM::ExecuteOnMainThread(std::function<void()> fn) {
 		AddTask(new Task<int>([]() -> int { return 0; }, [&fn](int p) -> void {
 			fn();
-			}));
+		}));
 	}
 
 	void SSM::AddTask(ITask* task) {
@@ -152,8 +152,7 @@ namespace ssm {
 		if (it != plugins.end()) {
 			if (pPlugin) {
 				if (!UnloadPlugin(pPlugin)) return false;
-			}
-			else {
+			} else {
 				if (!UnloadPlugin(name)) return false;
 			}
 		}
@@ -182,9 +181,10 @@ namespace ssm {
 		auto it = plugins.find(name);
 		if (it == plugins.end()) return false;
 		it->second.second->OnUnload();
-		if (it->second.first != INVALID_HANDLE_VALUE) {
-			bool res = FreeLibrary((HMODULE)it->second.first);
-			plugins.erase(it);
+		HMODULE handle = (HMODULE)it->second.first;
+		plugins.erase(it);
+		if (handle != INVALID_HANDLE_VALUE) {
+			bool res = FreeLibrary(handle);
 			return res;
 		}
 		return true;
