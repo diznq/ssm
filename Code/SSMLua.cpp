@@ -54,9 +54,9 @@ namespace ssm {
 				pSS->PushFuncParam(event->target);
 				pSS->PushFuncParam(event->msg.c_str());
 				if (pSS->EndCallAnyN(2, values)) {
-					if (values[0].GetVarType() == ScriptVarType::svtBool && values[1].GetVarType() == ScriptVarType::svtString) {
-						if (!values[0].b) return false;
-						event->msg = values[1].str;
+					if (values[1].GetVarType() == ScriptVarType::svtBool && values[0].GetVarType() == ScriptVarType::svtString) {
+						if (!values[1].b) return false;
+						event->msg = values[0].str;
 					}
 				}
 			}
@@ -73,9 +73,9 @@ namespace ssm {
 				pSS->PushFuncParam(event->player->GetEntityId());
 				pSS->PushFuncParam(event->newName.c_str());
 				if (pSS->EndCallAnyN(2, values)) {
-					if (values[0].GetVarType() == ScriptVarType::svtBool && values[1].GetVarType() == ScriptVarType::svtString) {
-						if (!values[0].b) return false;
-						event->newName = values[1].str;
+					if (values[1].GetVarType() == ScriptVarType::svtBool && values[0].GetVarType() == ScriptVarType::svtString) {
+						if (!values[1].b) return false;
+						event->newName = values[0].str;
 					}
 				}
 			}
