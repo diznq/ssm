@@ -120,15 +120,15 @@ namespace ssm {
 		std::atomic<bool> finished;
 	public:
 		Task(std::function<T()> asyncTask, std::function<void(T)> onFinished = nullptr) : fn(asyncTask), cb(onFinished) {}
-		virtual void exec() {
+		void exec() override {
 			finished = false;
 			result = fn();
 			finished = true;
 		}
-		virtual bool isFinished() {
+		bool isFinished() override {
 			return finished.load();
 		}
-		virtual void finish() {
+		void finish() override {
 			if (cb)
 				cb(result);
 		}

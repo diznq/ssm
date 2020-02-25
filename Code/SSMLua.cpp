@@ -107,6 +107,19 @@ namespace ssm {
 			return true;
 		}));
 
+		bindings.emplace_back(pSSM->AddCallback(ssm::eCB_OnCheatDetected, [&pSSM, this](ssm::IParams* params) -> bool {
+			ssm::OnCheatDetectedParams* event = static_cast<ssm::OnCheatDetectedParams*>(params);
+			IScriptSystem* pSS = gEnv->pScriptSystem;
+			ScriptAnyValue g_gameRules;
+			if (pSS->BeginCall("g_gameRules", "OnCheatDetected") && pSS->GetGlobalAny("g_gameRules", g_gameRules)) {
+				pSS->PushFuncParam(g_gameRules);
+				pSS->PushFuncParam(event->player->GetEntityId());
+				pSS->PushFuncParam(event->cheat.c_str());
+				pSS->EndCall();
+			}
+			return true;
+		}));
+
 		bindings.emplace_back(pSSM->AddCallback(ssm::eCB_OnPlayerConnect, [&pSSM, this](ssm::IParams* params) -> bool {
 			ssm::OnPlayerConnectParams* event = static_cast<ssm::OnPlayerConnectParams*>(params);
 			IScriptSystem* pSS = gEnv->pScriptSystem;
