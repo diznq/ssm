@@ -88,6 +88,25 @@ namespace ssm {
 			return true;
 		}));
 
+		bindings.emplace_back(pSSM->AddCallback(ssm::eCB_OnShoot, [&pSSM, this](ssm::IParams* params) -> bool {
+			ssm::OnShootParams* event = static_cast<ssm::OnShootParams*>(params);
+			IScriptSystem* pSS = gEnv->pScriptSystem;
+			ScriptAnyValue g_gameRules;
+			if (pSS->BeginCall("g_gameRules", "ActorOnShoot") && pSS->GetGlobalAny("g_gameRules", g_gameRules)) {
+				pSS->PushFuncParam(g_gameRules);
+				pSS->PushFuncParam(event->shooter->GetEntityId());
+				pSS->PushFuncParam(event->ammoId);
+				pSS->PushFuncParam(event->pos);
+				pSS->PushFuncParam(event->dir);
+				pSS->PushFuncParam(event->vel);
+				pSS->PushFuncParam(event->fireMode->GetFireRate());
+				pSS->PushFuncParam(event->weaponId);
+				pSS->PushFuncParam("<unknown>");
+				pSS->EndCall();
+			}
+			return true;
+		}));
+
 		bindings.emplace_back(pSSM->AddCallback(ssm::eCB_OnPlayerConnect, [&pSSM, this](ssm::IParams* params) -> bool {
 			ssm::OnPlayerConnectParams* event = static_cast<ssm::OnPlayerConnectParams*>(params);
 			IScriptSystem* pSS = gEnv->pScriptSystem;

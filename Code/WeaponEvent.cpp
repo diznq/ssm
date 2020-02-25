@@ -22,6 +22,9 @@ History:
 #include <IAISystem.h>
 #include <IAgent.h>
 
+#include "SSM.h"
+using ssm::SSM;
+
 CWeapon::TEventListenerVector * CWeapon::m_listenerCache = 0;
 bool CWeapon::m_listenerCacheInUse = false;
 
@@ -53,6 +56,19 @@ void CWeapon::OnShoot(EntityId shooterId, EntityId ammoId, IEntityClass* pAmmoTy
 		pActor->HandleEvent(SGameObjectEvent(eCGE_OnShoot,eGOEF_ToExtensions));
 
 	IActor *pClientActor=m_pGameFramework->GetClientActor();
+
+	if (m_fm) {
+		ssm::OnShootParams event;
+		event.fireMode = m_fm;
+		event.shooter = pActor;
+		event.weapon = this;
+		event.ammoId = ammoId;
+		event.pos = pos;
+		event.dir = dir;
+		event.vel = vel;
+		event.weaponId = 0;
+		SSM::GetInstance()->OnShoot(&event);
+	}
 
 	if (pActor && pActor->GetActorClass() == CPlayer::GetActorClassType() && IsServer())
 	{

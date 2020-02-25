@@ -62,6 +62,11 @@ namespace ssm {
 		IWeapon* weapon;
 		IFireMode* fireMode;
 		IActor* shooter;
+		Vec3 pos;
+		Vec3 dir;
+		Vec3 vel;
+		EntityId ammoId;
+		EntityId weaponId;
 	};
 
 	struct OnCheatDetectedParams : public IParams {

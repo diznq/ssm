@@ -43,6 +43,7 @@ namespace ssm {
 				error = true;
 				ss << "\\\\Error: WinInet code: " << GetLastError();
 			}
+
 			InternetCloseHandle(hRequest);
 			InternetCloseHandle(hConnect);
 			InternetCloseHandle(hSession);
