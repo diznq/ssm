@@ -665,6 +665,9 @@
     <ClCompile Include="SSMUtils.cpp">
       <Filter>SSM</Filter>
     </ClCompile>
+    <ClCompile Include="SSMHTTP.cpp">
+      <Filter>SSM</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h">
@@ -1170,6 +1173,9 @@
       <Filter>SSM</Filter>
     </ClInclude>
     <ClInclude Include="SSMCrypto.h">
+      <Filter>SSM</Filter>
+    </ClInclude>
+    <ClInclude Include="SSMHTTP.h">
       <Filter>SSM</Filter>
     </ClInclude>
   </ItemGroup>

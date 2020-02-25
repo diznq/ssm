@@ -13,7 +13,7 @@ namespace ssm {
 
 		int ConnectWebsite(IFunctionHandler* pH, char* host, char* page, int port, bool http11 = false, int timeout = 15, bool methodGet = true, bool alive = false);
 		int FSetCVar(IFunctionHandler* pH, const char* cvar, const char* val);
-		int AsyncConnectWebsite(IFunctionHandler* pH, char* host, char* page, int port, bool http11 = false, int timeout = 15, bool methodGet = true, bool alive = false);
+		int AsyncConnectWebsite(IFunctionHandler* pH, const char* method, const char* hostName, const char* page, const char* body, int port, HSCRIPTFUNCTION func);
 		int GetIP(IFunctionHandler* pH, char* host);
 		int GetMapName(IFunctionHandler* pH);
 		int Random(IFunctionHandler* pH);

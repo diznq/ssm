@@ -2,6 +2,7 @@
 #include "SSMLua.h"
 #include "SSM.h"
 #include "SSMUtils.h"
+#include "SSMHTTP.h"
 #include <Windows.h>
 
 namespace ssm {
@@ -25,7 +26,7 @@ namespace ssm {
 		SCRIPT_REG_TEMPLFUNC(GetIP, "host");
 		SCRIPT_REG_TEMPLFUNC(GetLocalIP, "");
 		SCRIPT_REG_TEMPLFUNC(GetMapName, "");
-		SCRIPT_REG_TEMPLFUNC(AsyncConnectWebsite, "host, page, port, http11, timeout, methodGet");
+		SCRIPT_REG_TEMPLFUNC(AsyncConnectWebsite, "method, hostName, page, body, port, callback");
 		SCRIPT_REG_TEMPLFUNC(DoAsyncChecks, "");
 		SCRIPT_REG_TEMPLFUNC(SHA256, "text");
 		SCRIPT_REG_TEMPLFUNC(GetLocaleInformation, "");
@@ -95,8 +96,13 @@ namespace ssm {
 				char profileId[16];
 				char ip[32];
 				int n_ip = 0;
-				if(event->channel)
-					n_ip = *(int*)(((const char*)event->channel) + 0x78);
+				if (event->channel) {
+					int offset = 0x78;
+#ifdef WIN64
+					offset = 0xD0;
+#endif
+					n_ip = *(int*)(((const char*)event->channel) + offset);
+				}
 				sprintf(ip, "%d.%d.%d.%d", (n_ip >> 24) & 255, (n_ip >> 16) & 255, (n_ip >> 8) & 255, (n_ip & 255));
 				itoa(event->channel ? event->channel->GetProfileId() : 0, profileId, 16);
 				pSS->PushFuncParam(g_gameRules);
@@ -255,7 +261,21 @@ namespace ssm {
 	int SSMLua::DoAsyncChecks(IFunctionHandler* pH) {
 		return pH->EndFunction(0);
 	}
-	int SSMLua::AsyncConnectWebsite(IFunctionHandler* pH, char* host, char* page, int port, bool http11, int timeout, bool methodGet, bool alive) {
+	int SSMLua::AsyncConnectWebsite(IFunctionHandler* pH, const char *method, const char* hostName, const char *page, const char* body, int port, HSCRIPTFUNCTION func) {
+		std::string strHost = hostName, strPage = page, strMethod = method, strBody = body;
+		SSM::GetInstance()->AddTask(new Task<http::HTTPResponse>([=]() -> http::HTTPResponse {
+			return http::Request(strMethod, strHost, strPage, strBody, port);
+		}, [=](http::HTTPResponse resp) {
+			bool error;
+			std::string response;
+			std::tie(error, response) = resp;
+			IScriptSystem* pSS = gEnv->pScriptSystem;
+			if (pSS->BeginCall(func)) {
+				pSS->PushFuncParam(error);
+				pSS->PushFuncParam(response.c_str());
+				pSS->EndCall();
+			}
+		}));
 		return pH->EndFunction(0);
 	}
 }
