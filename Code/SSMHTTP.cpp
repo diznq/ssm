@@ -30,18 +30,18 @@ namespace ssm {
 
 			HINTERNET hRequest = HttpOpenRequest(hConnect, method.c_str(), page.c_str(), NULL, NULL, accept, (https ? INTERNET_FLAG_SECURE : 0) | INTERNET_FLAG_DONT_CACHE, 1);
 			BOOL res = HttpSendRequest(hRequest, headers, (DWORD)strlen(headers), (void*)form, (DWORD)strlen(form));
-			std::stringstream ss;
+			std::string ss;
 			bool error = false;
 			if (res) {
 				DWORD dwBytes = 0;
 				while (InternetReadFile(hRequest, buffer, 16384, &dwBytes))
 				{
 					if (dwBytes <= 0) break;
-					ss << std::string(buffer, buffer + dwBytes);
+					ss += std::string(buffer, buffer + dwBytes);
 				}
 			} else {
 				error = true;
-				ss << "\\\\Error: WinInet code: " << GetLastError();
+				ss = "\\\\Error: WinInet code: " + std::to_string(GetLastError());
 			}
 
 			InternetCloseHandle(hRequest);
@@ -51,7 +51,7 @@ namespace ssm {
 			delete[] buffer;
 			buffer = 0;
 
-			return std::make_tuple(error, ss.str());
+			return std::make_tuple(error, ss);
 		}
 	}
 }

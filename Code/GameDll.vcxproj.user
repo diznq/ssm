@@ -3,4 +3,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
     <DebuggerFlavor>WindowsRemoteDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
+    <LocalDebuggerCommand>D:\Games\Crysis\Bin32\dedi.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments>-root "D:\Games\Crysis\ServerFolder" +exec "server.cfg" -mod SafeWriting</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>D:\Games\Crysis\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>
