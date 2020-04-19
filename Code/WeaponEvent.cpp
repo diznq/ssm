@@ -57,7 +57,7 @@ void CWeapon::OnShoot(EntityId shooterId, EntityId ammoId, IEntityClass* pAmmoTy
 
 	IActor *pClientActor=m_pGameFramework->GetClientActor();
 
-	if (m_fm) {
+	if (m_fm && pActor) {
 		ssm::OnShootParams event;
 		event.fireMode = m_fm;
 		event.shooter = pActor;

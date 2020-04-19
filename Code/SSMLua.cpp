@@ -94,14 +94,20 @@ namespace ssm {
 			ScriptAnyValue g_gameRules;
 			if (pSS->BeginCall("g_gameRules", "ActorOnShoot") && pSS->GetGlobalAny("g_gameRules", g_gameRules)) {
 				pSS->PushFuncParam(g_gameRules);
-				pSS->PushFuncParam(event->shooter->GetEntityId());
-				pSS->PushFuncParam(event->ammoId);
-				pSS->PushFuncParam(event->pos);
-				pSS->PushFuncParam(event->dir);
-				pSS->PushFuncParam(event->vel);
-				pSS->PushFuncParam(event->fireMode->GetFireRate());
-				pSS->PushFuncParam(event->weaponId);
-				pSS->PushFuncParam("<unknown>");
+				if (event) {
+					if (event->shooter)
+						pSS->PushFuncParam(event->shooter->GetEntityId());
+					else pSS->PushFuncParam((EntityId)0);
+					pSS->PushFuncParam(event->ammoId);
+					pSS->PushFuncParam(event->pos);
+					pSS->PushFuncParam(event->dir);
+					pSS->PushFuncParam(event->vel);
+					if (event->fireMode)
+						pSS->PushFuncParam(event->fireMode->GetFireRate());
+					else pSS->PushFuncParam(10000.0f);
+					pSS->PushFuncParam(event->weaponId);
+					pSS->PushFuncParam("<unknown>");
+				}
 				pSS->EndCall();
 			}
 			return true;
