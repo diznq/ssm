@@ -115,6 +115,7 @@ namespace ssm {
 
 		bindings.emplace_back(pSSM->AddCallback(ssm::eCB_OnCheatDetected, [&pSSM, this](ssm::IParams* params) -> bool {
 			ssm::OnCheatDetectedParams* event = static_cast<ssm::OnCheatDetectedParams*>(params);
+			if (!event || !event->player) return true;
 			IScriptSystem* pSS = gEnv->pScriptSystem;
 			ScriptAnyValue g_gameRules;
 			if (pSS->BeginCall("g_gameRules", "OnCheatDetected") && pSS->GetGlobalAny("g_gameRules", g_gameRules)) {
