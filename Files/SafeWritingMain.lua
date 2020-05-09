@@ -101,139 +101,150 @@ function EncryptFile(file, out)
 	CPPAPI.FileEncrypt(file, out or file:gsub(".lua", ".bin"))
 end
 function OnClientMessage(svc, id, msgType, ...)
-	if SafeWriting.MsgQueue[id] then
-		if msgType ~= SafeWriting.MsgQueue[id].msgType then
-			KickPlayer(SafeWriting.MsgQueue[id].player, "invalid message type");
-			SafeWriting.MsgQueue[id]=nil;
-			return;
-		else
-			if msgType == "uuid" then
-				local part1, part2= string.match(({...})[1] or "", "(.+)[:](.+)")
-				if part1 and part2 then
-					if part2 == CPPAPI.SHA256(part1 .. SafeWriting.MsgQueue[id].msg) then
-						SafeWriting.MsgQueue[id].player.hwid = part1;
-						if CheckHWIDBan then CheckHWIDBan(SafeWriting.MsgQueue[id].player); end
-					else
-						KickPlayer(SafeWriting.MsgQueue[id].player, "invalid hwid signature");
-						SafeWriting.MsgQueue[id]=nil;
-						return;
+	if not RPC then
+		if SafeWriting.MsgQueue[id] then
+			if msgType ~= SafeWriting.MsgQueue[id].msgType then
+				KickPlayer(SafeWriting.MsgQueue[id].player, "invalid message type");
+				SafeWriting.MsgQueue[id]=nil;
+				return;
+			else
+				if msgType == "uuid" then
+					local part1, part2= string.match(({...})[1] or "", "(.+)[:](.+)")
+					if part1 and part2 then
+						if part2 == CPPAPI.SHA256(part1 .. SafeWriting.MsgQueue[id].msg) then
+							SafeWriting.MsgQueue[id].player.hwid = part1;
+							if CheckHWIDBan then CheckHWIDBan(SafeWriting.MsgQueue[id].player); end
+						else
+							KickPlayer(SafeWriting.MsgQueue[id].player, "invalid hwid signature");
+							SafeWriting.MsgQueue[id]=nil;
+							return;
+						end
 					end
 				end
+				if SafeWriting.MsgQueue[id].cb then
+					local fn = SafeWriting.MsgQueue[id].cb;
+					pcall(fn, SafeWriting.MsgQueue[id].player, msgType, ...)
+				end
 			end
-			if SafeWriting.MsgQueue[id].cb then
-				local fn = SafeWriting.MsgQueue[id].cb;
-				pcall(fn, SafeWriting.MsgQueue[id].player, msgType, ...)
-			end
+			SafeWriting.MsgQueue[id]=nil;
+		elseif SafeWriting.SigQueue[id] then
+			local msg = {...};
+			OnReceiveSignature(id, msg[1])
 		end
-		SafeWriting.MsgQueue[id]=nil;
-	elseif SafeWriting.SigQueue[id] then
-		local msg = {...};
-		OnReceiveSignature(id, msg[1])
 	end
 end
 function OnRPCEvent(clientId, method, id, ...)
 	return pcall(OnClientMessage, clientId, id, method, ...)
 end
 function SendMessageToClient(player, msgType, msg, timeo, cb)
-	timeo = timeo or 5;
-	msg = msg or "get";
-	msgType = msgType or "ping";
-	if type(timeo) == "function" then c = cb; cb = timeo; timeo = c or 5; end
-	
-	if not player.rpcId then
-		if cb then pcall(cb, player, "error", "player wasnt checked") end
-		return;
+	if not RPC then
+		timeo = timeo or 5;
+		msg = msg or "get";
+		msgType = msgType or "ping";
+		if type(timeo) == "function" then c = cb; cb = timeo; timeo = c or 5; end
+		
+		if not player.rpcId then
+			if cb then pcall(cb, player, "error", "player wasnt checked") end
+			return;
+		end
+		
+		local uuid = GenerateUUID()
+		local channelId = player.actor:GetChannel() or -1;
+		SafeWriting.MsgQueue[uuid] = {
+			["player"] = player,
+			["time"] = _time,
+			["msgType"] = msgType,
+			["msg"] = msg,
+			["timeo"] = timeo,
+			["cb"] = cb
+		};
+		CPPAPI.SendMessageToClient(player.rpcId, msgType, {uuid, msg})
 	end
-	
-	local uuid = GenerateUUID()
-	local channelId = player.actor:GetChannel() or -1;
-	SafeWriting.MsgQueue[uuid] = {
-		["player"] = player,
-		["time"] = _time,
-		["msgType"] = msgType,
-		["msg"] = msg,
-		["timeo"] = timeo,
-		["cb"] = cb
-	};
-	CPPAPI.SendMessageToClient(player.rpcId, msgType, {uuid, msg})
 end
 function ElimMessages()
-	local toremove = {};
-	for i,v in pairs(SafeWriting.MsgQueue) do
-		local t = v.timeo;
-		if (_time - v.time)>t then
-			KickPlayer(v.player, "message timeout");
-			--SafeWriting.MsgQueue[i]=nil;
-			toremove[#toremove + 1] = i;
+	if not RPC then
+		local toremove = {};
+		for i,v in pairs(SafeWriting.MsgQueue) do
+			local t = v.timeo;
+			if (_time - v.time)>t then
+				KickPlayer(v.player, "message timeout");
+				--SafeWriting.MsgQueue[i]=nil;
+				toremove[#toremove + 1] = i;
+			end
 		end
-	end
-	for i,v in pairs(toremove) do
-		SafeWriting.MsgQueue[v]=nil;
+		for i,v in pairs(toremove) do
+			SafeWriting.MsgQueue[v]=nil;
+		end
 	end
 end
 function OnReceiveSignature(id, signature)
-	if SafeWriting.SigQueue[id] then
-		local it = SafeWriting.SigQueue[id];
-		it.integrityFailures = 0
-		if not (it.awaitSignature1 == signature or it.awaitSignature2 == signature) then
-			it.signatureErrors = (it.signatureErrors or 0) + 1
-			printf("Awaited signature for x86: %s", it.awaitSignature1);
-			printf("Awaited signature for x64: %s", it.awaitSignature2);
-			printf("Received signature: %s (offsets: %s, errors: %d)", signature, it.signatureErrors);
-			if it.signatureErrors > 5 then
-				KickPlayer(it, "invalid signature")
+	if not RPC then
+		if SafeWriting.SigQueue[id] then
+			local it = SafeWriting.SigQueue[id];
+			it.integrityFailures = 0
+			if not (it.awaitSignature1 == signature or it.awaitSignature2 == signature) then
+				it.signatureErrors = (it.signatureErrors or 0) + 1
+				printf("Awaited signature for x86: %s", it.awaitSignature1);
+				printf("Awaited signature for x64: %s", it.awaitSignature2);
+				printf("Received signature: %s (offsets: %s, errors: %d)", signature, it.signatureErrors);
+				if it.signatureErrors > 5 then
+					KickPlayer(it, "invalid signature")
+				else
+					it.signatureChecked = true;
+				end
 			else
+				it.signatureErrors = 0;
 				it.signatureChecked = true;
 			end
-		else
-			it.signatureErrors = 0;
-			it.signatureChecked = true;
+			SafeWriting.SigQueue[id] = nil
 		end
-		SafeWriting.SigQueue[id] = nil
 	end
 end
 function RequestSignatures()
-	AsyncConnectHTTP("api.crymp.net","/api/integrity_svc.php?"..tostring(Time()),"GET",443,true,15,function(c)
-		local content,hdr,error=ParseHTTP(c);
-		if not error then
-			local a1,a2,lens,nonces,s1,s2 = string.match(content, "^(.-),(.-),(.-),(.-),(.-),(.-)$")
-			local players = GetPlayers()
-			for i,v in pairs(players) do
-				if v.WasChecked and v.rpcId then
-					local id = GenerateUUID()
-					local channelId=v.actor:GetChannel() or -1;
-					CPPAPI.SendMessageToClient(v.rpcId, "sign", {id, nonces, a1, a2, lens});
-					v.awaitSignature1 = s1
-					v.awaitSignature2 = s2
-					v.awaitAddr1 = a1;
-					v.awaitAddr2 = a2;
-					v.signatureTime = _time
-					v.signatureChecked = false
-					v.signatureId=id;
-					SafeWriting.SigQueue[id]=v;
+	if not RPC then
+		AsyncConnectHTTP("api.crymp.net","/api/integrity_svc.php?"..tostring(Time()),"GET",443,true,15,function(error, content)
+			if not error then
+				local a1,a2,lens,nonces,s1,s2 = string.match(content, "^(.-),(.-),(.-),(.-),(.-),(.-)$")
+				local players = GetPlayers()
+				for i,v in pairs(players) do
+					if v.WasChecked and v.rpcId then
+						local id = GenerateUUID()
+						local channelId=v.actor:GetChannel() or -1;
+						CPPAPI.SendMessageToClient(v.rpcId, "sign", {id, nonces, a1, a2, lens});
+						v.awaitSignature1 = s1
+						v.awaitSignature2 = s2
+						v.awaitAddr1 = a1;
+						v.awaitAddr2 = a2;
+						v.signatureTime = _time
+						v.signatureChecked = false
+						v.signatureId=id;
+						SafeWriting.SigQueue[id]=v;
+					end
 				end
+			else
+				printf("Connection error: %s, retrying",error);
+				SIG_LAST=_time-120;
 			end
-		else
-			printf("Connection error: %s, retrying",error);
-			SIG_LAST=_time-120;
-		end
-	end);
+		end);
+	end
 end
 function ElimSignatures()
-	local toremove = {}
-	for i,v in pairs(SafeWriting.SigQueue) do
-		if (not v.signatureChecked) and (_time - v.signatureTime)>15 then
-			v.integrityFailures = (v.integrityFailures or 0)+1
-			if v.integrityFailures > 15 then
-				KickPlayer(v, "integrity check failed")
-			else
-				printf("Integrity check failed for %s (%d / 15)", ((v.GetName and v:GetName() or "null") or "<unknown>"), v.integrityFailures or 0)
+	if not RPC then
+		local toremove = {}
+		for i,v in pairs(SafeWriting.SigQueue) do
+			if (not v.signatureChecked) and (_time - v.signatureTime)>15 then
+				v.integrityFailures = (v.integrityFailures or 0)+1
+				if v.integrityFailures > 15 then
+					KickPlayer(v, "integrity check failed")
+				else
+					printf("Integrity check failed for %s (%d / 15)", ((v.GetName and v:GetName() or "null") or "<unknown>"), v.integrityFailures or 0)
+				end
+				toremove[#toremove+1] = i;
 			end
-			toremove[#toremove+1] = i;
 		end
-	end
-	for i,v in pairs(toremove) do
-		SafeWriting.SigQueue = {};
+		for i,v in pairs(toremove) do
+			SafeWriting.SigQueue = {};
+		end
 	end
 end
 function GenerateUUID()
@@ -826,11 +837,7 @@ function SafeWriting:OnTimerTick()
 			--printf("local ip: %s",local_ip);
 			if not TOLD_EXISTENTION and (not MASTER_COOKIE) then
 				local page=urlfmt("/api/reg.php?port=%d&maxpl=%d&numpl=%d&name=%s&pass=%s&map=%s&timel=%d&mapdl=%s&ver=%d&ranked=%d&desc=%s&mappic=%s&local=%s",port,maxpl,numpl,svn,svp,map,g_gameRules.game:GetRemainingGameTime(),mapdl,ver,rnk,desc,mappic,local_ip);
-				AsyncConnectHTTP(se.MasterHost or "crymp.net",page,se.ForceGET and "GET" or "POST",80,true,15,function(c)
-					local content,hdr,error=ParseHTTP(c);
-					--printf("Registration returns: %s",content);
-					--printf("Registration header: %s",hdr);
-					--printf("Registration status: %s",tostring(error));
+				AsyncConnectHTTP(se.MasterHost or "crymp.net",page,se.ForceGET and "GET" or "POST",80,true,15,function(error, content)
 					if not error then
 						MASTER_COOKIE=string.match(content,"<<Cookie>>(.-)<<");
 						if MASTER_COOKIE and MASTER_COOKIE:len()>30 then
@@ -838,7 +845,7 @@ function SafeWriting:OnTimerTick()
 							printf("Cookie: %s",MASTER_COOKIE);
 						else MASTER_COOKIE=nil; end
 					else
-						printf("Connection error: %s, retrying",error);
+						printf("Connection error: %s, retrying", content);
 						self.LAST_MASTERSERVER=_time-120;
 					end
 				end);
@@ -862,10 +869,9 @@ function SafeWriting:OnTimerTick()
 				end
 				map=map or "unknown";
 				local page=urlfmt("/api/up.php?port=%d&numpl=%d&name=%s&pass=%s&cookie=%s&map=%s&timel=%d&mapdl=%s&ver=%d&ranked=%d&players=%s&desc=%s&mappic=%s&local=%s",port,numpl,svn,svp,MASTER_COOKIE,map,g_gameRules.game:GetRemainingGameTime(),mapdl,ver,rnk,plstring,desc,mappic,local_ip);
-				AsyncConnectHTTP(se.MasterHost or "crymp.net",page,se.ForceGET and "GET" or "POST",80,true,15,function(c)
-					local content,hdr,error=ParseHTTP(c);
+				AsyncConnectHTTP(se.MasterHost or "crymp.net",page,se.ForceGET and "GET" or "POST",80,true,15,function(error, content)
 					if error then
-						printf("Connection error: %s, retrying",error);
+						printf("Connection error: %s, retrying", content);
 						self.LAST_MASTERSERVER=_time-120;
 					end
 				end);
@@ -1707,23 +1713,27 @@ end
 function AsyncConnectHTTP(host,url,method,port,http11,timeout,func)
 	--printf("Connecting %s",host);
 	--printf("URL: %s",(url:gsub("[%%]","#")) or "nil");
-	method=method or "GET";
-	method=method:upper();
-	AsyncConnCtr=(AsyncConnCtr or 0)+1;
-	AsyncCreateId(CPPAPI.AsyncConnectWebsite(host,url,port or 80,http11 or false,timeout,method=="GET" and true or false,false),func);
+	--method=method or "GET";
+	--method=method:upper();
+	--AsyncConnCtr=(AsyncConnCtr or 0)+1;
+	--(IFunctionHandler* pH, const char *method, const char* hostName, const char *page, const char* body, int port, HSCRIPTFUNCTION func)
+	--AsyncCreateId(CPPAPI.AsyncConnectWebsite(host,url,port or 80,http11 or false,timeout,method=="GET" and true or false,false),func);
+	CPPAPI.AsyncConnectWebsite(method, host, url, "", port, function(err, resp)
+		func(err, resp)
+	end)
 end
 function SmartHTTP(method,host,url,func)
 	if url:find("?") then url = url .. "&rqt="..Time(); else url = url .. "?rqt="..Time(); end
-	return AsyncConnectHTTP(host,url,method,80,true,5000,function(ret)
-		if ret:sub(1,8)=="\\\\Error:" then
+	return AsyncConnectHTTP(host,url,method,80,true,5000,function(error, ret)
+		if error or ret:sub(1,8)=="\\\\Error:" then
 			func(ret:sub(3),true)
 		else func(ret,false); end
 	end);
 end
 function SmartHTTPS(method,host,url,func)
 	if url:find("?") then url = url .. "&rqt="..Time(); else url = url .. "?rqt="..Time(); end
-	return AsyncConnectHTTP(host,url,method,443,true,5000,function(ret)
-		if ret:sub(1,8)=="\\\\Error:" then
+	return AsyncConnectHTTP(host,url,method,443,true,5000,function(error, ret)
+		if error or ret:sub(1,8)=="\\\\Error:" then
 			func(ret:sub(3),true)
 		else func(ret,false); end
 	end);
@@ -1879,13 +1889,37 @@ end
 function CheckPlayer(player, noevent)
 	novent = noevent or false;
 	local se=SafeWriting.Settings;
+	
 	if se.AllowMasterServer and (tostring(player.profile)=="0" or (not player.isSfwCl)) then
 		player.waitingForAuth = _time;
 		printf("Skipped player check yet (%s, profile is %s, this is %d. time)", player:GetName(), tostring(player.gsprofile or 0),(player.checkSkips or 1))
 		player.checkSkips = (player.checkSkips or 1) + 1;
 		return;
 	end
+	
+	if RPC and (not player.hwid) and (not player.hwidSent) then
+		local s = GenerateUUID()
+		player.hwidSent = true;
+		RPC:Await(RPC:CallOne(player, "UUID", { salt = s; }), function(player, resp)
+			if resp.uuid then
+				local part1, part2= string.match(resp.uuid or "", "(.+)[:](.+)")
+				if part1 and part2 then
+					if part2 == CPPAPI.SHA256(part1 .. s) then
+						player.rpcId = part2;
+						player.hwid = part1;
+						player.static_id = resp.static_id;
+						if CheckHWIDBan then CheckHWIDBan(player); end
+					else
+						KickPlayer(player, "invalid hwid signature");
+						return;
+					end
+				end
+			end
+		end, 15)
+	end
+	
 	if player.desiredName then RenamePlayer(player, player.desiredName); player.desiredName=nil; end
+	
 	if(not player.WasChecked)then
 		if(se.UsePermaBans)then
 			local ispermabanned,reason=IsPermabanned(player)

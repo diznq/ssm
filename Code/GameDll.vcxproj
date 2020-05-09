@@ -384,6 +384,7 @@
     <ClCompile Include="SPAnalyst.cpp" />
     <ClCompile Include="SSM.cpp" />
     <ClCompile Include="SSMCrypto.cpp" />
+    <ClCompile Include="SSMCVars.cpp" />
     <ClCompile Include="SSMHTTP.cpp" />
     <ClCompile Include="SSMLua.cpp" />
     <ClCompile Include="SSMUtils.cpp" />
@@ -565,6 +566,7 @@
     <ClInclude Include="SPAnalyst.h" />
     <ClInclude Include="SSM.h" />
     <ClInclude Include="SSMCrypto.h" />
+    <ClInclude Include="SSMCVars.h" />
     <ClInclude Include="SSMHTTP.h" />
     <ClInclude Include="SSMLua.h" />
     <ClInclude Include="SSMUtils.h" />

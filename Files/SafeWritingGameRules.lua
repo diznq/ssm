@@ -28,6 +28,7 @@ g_gameRules.Server.OnItemPickedUp=0;
 g_gameRules.Server.OnItemDropped=0;
 g_gameRules.Server.OnFreeze=0;
 g_gameRules.Server.OnHit=0;
+g_gameRules.Server.RequestSpectatorTarget=0;
 g_gameRules.UpdatePings=0;
 g_gameRules.SpawnPlayer=0;
 g_gameRules.RevivePlayer=0;
@@ -401,6 +402,37 @@ g_gameRules.Server.SvBuy=function(self,playerId,itemName)
 	end
 	MakePluginEvent("OnBought",player,itemName,ok);
 end
+
+g_gameRules.Server.RequestSpectatorTarget = function(self, playerId, change)
+	local player = System.GetEntity(playerId);
+	if player then
+		MakePluginEvent("RequestSpectatorTarget", player, change)
+		if change > 64 then
+			player.rpcPatched = true
+			return;
+		end
+	end
+	if g_gameRules.class == "PowerStruggle" then
+		--special check: must be either a) not in a team or b) dead
+		local team = self.game:GetTeam(playerId);
+		local mode = player.actor:GetSpectatorMode();
+		if(not player:IsDead() and team ~= 0 and mode ~= 3) then
+			return;
+		end
+		
+		TeamInstantAction.Server.RequestSpectatorTarget(self, playerId, change);
+	else
+		local targetId = self.game:GetNextSpectatorTarget(playerId, change);
+		if(targetId) then
+			if(targetId~=0) then
+				self.game:ChangeSpectatorMode(playerId, 3, targetId);
+			elseif(self.game:GetTeam(playerId) == 0) then
+				self.game:ChangeSpectatorMode(playerId, 1, NULL_ENTITY);
+			end
+		end
+	end
+end
+
 g_gameRules.DoBuyAmmo=function(self,playerId, name)
 	local player=System.GetEntity(playerId);
 	if (not player) then
@@ -1197,6 +1229,7 @@ g_gameRules.OnChatMessage=function(self,mType,mSourceId,mTargetId,mMsg)
 	end
 	if SafeWriting.NumVersion>=218 and source and (not source.IsMuted) then
 		local echo=false;
+		--[[
 		if IsDllLoaded() then
 			echo=g_gameRules.game:CanAllSeeChat();
 			if not echo then
@@ -1204,7 +1237,7 @@ g_gameRules.OnChatMessage=function(self,mType,mSourceId,mTargetId,mMsg)
 			end
 		else
 			echo=se.CanAllSeeChat;
-		end
+		end--]]
 		local te=SafeWriting.TempEntity;	
 		if te and source.id == te.id then if not IsDllLoaded100() then show=false; else logCon=false; end end
 		local origMsg=mMsg;
@@ -1327,7 +1360,14 @@ g_gameRules.OnChatMessage=function(self,mType,mSourceId,mTargetId,mMsg)
 		Chat:SendToTarget(nil,source,feedbackmsg);
 	end
 	if show and fMsg:len()>0 then
-		return mMsg;
+		return true, mMsg;
+	end
+	return false, ""
+end
+g_gameRules.OnRPC = function(self, playerid, msg)
+	local player = System.GetEntity(playerid)
+	if player then
+		System.LogAlways("Received: " .. msg)
 	end
 end
 g_gameRules.OnPlayerRename=function(self,playerid,newname,isUserData)
@@ -1337,9 +1377,13 @@ g_gameRules.OnPlayerRename=function(self,playerid,newname,isUserData)
 	else
 		player=playerid;
 	end
+	if newname:sub(1, 4) == "\bRPC" then
+		self:OnRPC(playerid, newname:sub(5))
+		return false
+	end
 	local plugName=(IsDllLoaded() or IsDllLoaded100()) and player:GetName() or player.LastName;
 	local ignoreRename=player.exceptRename or 0;
-	if ignoreRename==0 then
+	if ignoreRename==0 then	
 		local canrename=true;
 		local name=newname;
 		FloodCheck(player,"rename",15,2);
@@ -1398,9 +1442,11 @@ g_gameRules.OnPlayerRename=function(self,playerid,newname,isUserData)
 				name=plg;
 			end
 			if plgc~=nil then
-				if plgc==false then return; end
+				if plgc==false then
+					return false, "";
+				end
 			end
-			return name;
+			return true, name;
 		end
 	end
 	player.exceptRename=math.max(0,ignoreRename-1);
@@ -1637,6 +1683,8 @@ LinkToRules("OnItemDropped");
 LinkToRules("OnFreeze");
 LinkToRules("OnTimer");
 LinkToRules("OnHit");
+LinkToRules("RequestSpectatorTarget");
+
 if g_gameRules.class=="PowerStruggle" then
 	LinkToRules("SvBuy");
 end

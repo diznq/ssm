@@ -2802,6 +2802,8 @@ void CGameRules::SendTextMessage(ETextMessageType type, const char *msg, unsigne
 //------------------------------------------------------------------------
 bool CGameRules::CanReceiveChatMessage(EChatMessageType type, EntityId sourceId, EntityId targetId) const
 {
+	return true;
+#if 0
 	if(sourceId == targetId)
 		return true;
 
@@ -2825,6 +2827,7 @@ bool CGameRules::CanReceiveChatMessage(EChatMessageType type, EntityId sourceId,
 
 	//CryLog("Allowing msg: source %d, target %d, sspec %d, sdead %d, tspec %d, tdead %d", sourceId, targetId, sspec, sdead, tspec, tdead);
 	return true;
+#endif
 }
 
 //------------------------------------------------------------------------

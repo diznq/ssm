@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "SSM.h"
+#include "SSMCVars.h"
 #include <algorithm>
 #include <thread>
 #include <Windows.h>
@@ -63,6 +64,10 @@ namespace ssm {
 		} else {
 			gEnv->pLog->LogError("[ssm] Failed to get CryNetwork handle");
 		}
+
+
+		if (ICVar* sv_maxplayers = gEnv->pConsole->GetCVar("sv_maxplayers"))
+			sv_maxplayers->SetOnChangeCallback(cvars::SvMaxPlayers);
 	}
 
 	IGameFramework* SSM::GetGameFramework() {
