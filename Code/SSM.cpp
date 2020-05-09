@@ -4,6 +4,9 @@
 #include <thread>
 #include <Windows.h>
 #include <IGame.h>
+#include <Psapi.h>
+
+#pragma comment(lib, "Psapi")
 
 namespace ssm {
 
@@ -30,6 +33,35 @@ namespace ssm {
 		for (unsigned int i = 0; i < threads; i++) {
 			std::thread thr(Worker, this);
 			thr.detach();
+		}
+		HMODULE CryNetwork = GetModuleHandle("CryNetwork.dll");
+
+		char m_crymp_net[] = "m.crymp.net";
+
+		if (CryNetwork != INVALID_HANDLE_VALUE) {
+			MODULEINFO modInfo;
+			if (GetModuleInformation(GetCurrentProcess(), CryNetwork, &modInfo, sizeof(modInfo))) {
+				const char* base = (const char*)modInfo.lpBaseOfDll;
+				DWORD size = modInfo.SizeOfImage;
+
+				for (DWORD i = 1; i < size; i++) {
+					if (base[i] == 'g' && !strncmp(base + i, "gamespy.com", 11)) {
+						const char* stringBase = base + i;
+						while (stringBase[-1]) stringBase--;
+						gamespyAddresses.push_back((void*)(stringBase));
+						DWORD flags;
+						if (VirtualProtect((void*)(base + i), 16, PAGE_READWRITE, &flags)) {
+							memcpy((void*)(base + i), m_crymp_net, 11);
+							VirtualProtect((void*)(base + i), 16, flags, 0);
+						}
+						i += 11;
+					}
+				}
+			} else {
+				gEnv->pLog->LogError("[ssm] Failed to get module information");
+			}
+		} else {
+			gEnv->pLog->LogError("[ssm] Failed to get CryNetwork handle");
 		}
 	}
 

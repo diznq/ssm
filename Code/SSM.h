@@ -13,6 +13,7 @@ namespace ssm {
 		bool initialized = false;
 		IGame* game;
 		std::map<std::string, std::pair<void*, IPlugin*>> plugins;
+		std::vector<void*> gamespyAddresses;
 	public:
 		static SSM* GetInstance() {
 			static SSM instance;
